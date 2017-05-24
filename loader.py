@@ -24,8 +24,25 @@ source = []
 target = []
 #Storing the results of interactions
 result_list = interactions["results"]
+#Storing the relevant information - Source , Target, Mode of Interaction (Interaction Detail Type + Interaction Detail Name)
+relevant_edge_info = []
 
-#Extracting the node relationships and storing it temporarily for future use
+#Extracting relevant edge information
+for edge in result_list:
+	temp_edge_list = []
+	#First Element : Node1
+	temp_edge_list.append(edge[0])
+	#Second Element : Node2
+	temp_edge_list.append(edge[2])
+	#Third Element : Interaction type
+	temp_edge_list.append(edge[4])
+	#Fourth Element : Interaction Name
+	temp_edge_list.append(edge[5])
+	#Final Append
+	relevant_edge_info.append(temp_edge_list)
+
+
+#Extracting the node & edge relationships and storing it temporarily - Separately -  for future use
 for edge in result_list:
 	source.append(edge[0])
 	target.append(edge[2])
@@ -115,27 +132,6 @@ for onto_info in ontology:
 	#Second Element : OntologyTerm Name
 	temp_onto.append(onto_info[6])
 	ontology_info[onto_info[0]].append(temp_onto)
-
-
-
-
-
-
-
-
-
-
-#print pathway_info
-
-
-
-
-
-
-
-
-
-
 
 
 
