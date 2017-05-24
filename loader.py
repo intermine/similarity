@@ -27,19 +27,6 @@ result_list = interactions["results"]
 #Storing the relevant information - Source , Target, Mode of Interaction (Interaction Detail Type + Interaction Detail Name)
 relevant_edge_info = []
 
-#Extracting relevant edge information
-for edge in result_list:
-	temp_edge_list = []
-	#First Element : Node1
-	temp_edge_list.append(edge[0])
-	#Second Element : Node2
-	temp_edge_list.append(edge[2])
-	#Third Element : Interaction type
-	temp_edge_list.append(edge[4])
-	#Fourth Element : Interaction Name
-	temp_edge_list.append(edge[5])
-	#Final Append
-	relevant_edge_info.append(temp_edge_list)
 
 
 #Extracting the node & edge relationships and storing it temporarily - Separately -  for future use
@@ -55,6 +42,8 @@ for edge in result_list:
 	query = '''MERGE(w0:Gene{gene:{gene1}}) MERGE(w1:Gene{gene:{gene2}}) MERGE (w0)-[:INTERACTS]->(w1)'''
 	#graph.run(query,gene1 = edge[0],gene2 = edge[2])
 
+
+""" Extraction and Storage of Protein Domain Information  """
 
 #Loading gene_proteindomains information
 with open('JSON rows/gene_proteindomains.json') as json_data:
@@ -80,6 +69,7 @@ for domain_info in domains:
 	protein_domain_info[domain_info[0]].append(temp_domain)
 
 
+""" Extraction and Storage of Pathway Information """
 
 #Loading Pathway Information
 with open('JSON rows/gene_pathways.json') as json_data:
@@ -107,7 +97,7 @@ for path in pathways:
 	pathway_info[path[2]].append(temp_list)
 
 
-
+""" Extraction and Storage of Gene Ontology Information """
 
 #Loading Gene Ontology Information
 with open('JSON rows/gene_goterms.json') as json_data:
@@ -133,6 +123,84 @@ for onto_info in ontology:
 	temp_onto.append(onto_info[6])
 	ontology_info[onto_info[0]].append(temp_onto)
 
+
+""" Storage of Edge Information with regard to Gene Interactions """ 
+
+#Extracting relevant edge information
+for edge in result_list:
+	temp_edge_list = []
+	#First Element : Node1 [Source / Target]
+	temp_edge_list.append(edge[0])
+	#Second Element : Node2  [Source / Target]
+	temp_edge_list.append(edge[2])
+	#Third Element : Interaction type
+	temp_edge_list.append(edge[4])
+	#Fourth Element : Interaction Name
+	temp_edge_list.append(edge[5])
+	#Final Append
+	relevant_edge_info.append(temp_edge_list)
+
+
+""" Attaching relationships with Edges for entry into Neo4j """
+
+#Creation of appropriate properties for loading the relationships into Neo4j -- Currently treating edges as undirected
+for edge in relevant_edge_info:
+	#Source 
+	source = edge[0]
+	#Target
+	target = edge[1]
+
+	#Protein Domains for the Source Node
+	try:
+		source_domain = protein_domain_info[source]
+	except:
+		source_domain = []
+
+	#Protein Domains for the Target Node
+	try:
+		target_domain = protein_domain_info[target]
+	except:
+		target_domain = []
+
+
+	#Pathways involved with Source Node 
+	try:
+		source_pathway = pathway_info[source]
+	except:
+		source_pathway = []
+
+	#Pathways involved with Target Node
+	try:
+		target_pathway = pathway_info[target]
+	except:
+		target_pathway = []
+
+
+
+	#Ontologies Involved with Source Node
+	try:
+		source_ontology = ontology_info[source]
+	except:
+		source_ontology = []
+
+	#Ontologies Involved with Target Node
+	try:
+		target_ontology = ontology_info[target]
+	except:
+		target_ontology = 
+
+
+
+	
+
+
+
+
+
+
+
+
+	
 
 
 
