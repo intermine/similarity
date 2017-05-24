@@ -141,7 +141,12 @@ for edge in result_list:
 	relevant_edge_info.append(temp_edge_list)
 
 
-""" Attaching relationships with Edges for entry into Neo4j """
+
+
+
+""" Attaching relationships with Nodes & Edges for entry into Neo4j """
+
+i = 0
 
 #Creation of appropriate properties for loading the relationships into Neo4j -- Currently treating edges as undirected
 for edge in relevant_edge_info:
@@ -188,6 +193,42 @@ for edge in relevant_edge_info:
 		target_ontology = ontology_info[target]
 	except:
 		target_ontology = []
+
+    
+	#Interaction type
+	interaction_type = edge[2]
+	#Interaction_name
+	interaction_name = edge[3]
+
+	#""" Relationship Creation for entry into Neo4j -- Creation of multiple edges for different interaction_names """
+	query = '''MERGE(w0:Gene{gene:{gene1}}) MERGE(w1:Gene{gene:{gene2}}) MERGE (w0)-[:INTERACTS{interaction_name:{interact1},interaction_type:{interact2}}]->(w1)'''
+	#Query for pushing relevant data into Neo4j
+	graph.run(query,gene1 = source,gene2 = target,interact1 = interaction_name,interact2= interaction_type)
+
+	#No need to push data corresponding to Nodes - Currently --- To be figured out later
+
+
+
+
+	
+
+	#if i==30:
+	#	break
+
+	#i = i + 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
