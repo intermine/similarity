@@ -187,11 +187,11 @@ for edge in relevant_edge_info:
 	try:
 		target_ontology = ontology_info[target]
 	except:
-		target_ontology = 
+		target_ontology = []
 
 
 
-	
+
 
 
 
