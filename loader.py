@@ -146,8 +146,6 @@ for edge in result_list:
 
 """ Attaching relationships with Nodes & Edges for entry into Neo4j """
 
-i = 0
-
 #Creation of appropriate properties for loading the relationships into Neo4j -- Currently treating edges as undirected
 for edge in relevant_edge_info:
 	#Source 
@@ -211,50 +209,3 @@ for edge in relevant_edge_info:
 
 
 	
-
-	#if i==30:
-	#	break
-
-	#i = i + 1;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
