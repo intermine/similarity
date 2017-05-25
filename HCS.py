@@ -29,23 +29,36 @@ def find_minimum_cut(g):
 	edge_list = g.edges()
 	#Source for Edward-Karp Algorithm
 	start = edge_list[0][0]
-	#Sink for Edward-Karp Algorithm
-	end = edge_list[len(edge_list)-1][0]
-	if start !=end:
+	#Sink Initialization
+	end = edge_list[0][0]
+	#Sink for Edward-Karp Algorithm -- Sink Reassignment s.t : Source != Sink
+	for item in edge_list:
+		if item[0] != start:
+			end = item[0]
+			break
+		elif item[1]!=start:
+			end = item[1]
+			break
+		else:
+			continue
+			
+			
+
+	if start != end:
+		#List of edges comprising of the Cut Set
 		edge_set = minimum_st_edge_cut(g,start,end)
 	else:
 		edge_set = []
-	a = len(edge_set)
-	b = len(edge_list)
+
+
+	#List of edges in cut-set
+	cut_set = list(edge_set)
+
+	return cut_set
+
 	
-	return 1
 	
-
-
-
-""" HCS Algorithm for Recursive Calls """
-def HCS(g):
-	return 1
+	
 
 
 #Function to check the presence of any self loops -- If present, they have to be removed
@@ -85,6 +98,8 @@ def main_clustering(component, main_graph):
 
 	#Find the edges involved in minimum cut
 	cut_edges = find_minimum_cut(temp_graph)
+
+
 	
 
 
@@ -152,22 +167,6 @@ for component in g:
 	#Calls main_clustering each time with connected components : list(component) - (List of nodes in that component) & Original Graph Structure 
 	main_clustering(list(component),graph)
 	#print len(list(component))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
