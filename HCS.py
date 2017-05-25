@@ -30,7 +30,23 @@ def find_minimum_cut(g):
 def HCS(g):
 	return 1
 
-	
+
+#Function to check the presence of any self loops -- If present, they have to be removed
+def self_loop_presence(g):
+	#Looping through edge
+	for item in g.edges():
+		if item[0] == item[1]:
+			#At this stage remove the self loop from the Graph Data Structure
+			g.remove_edge(item[0],item[1])
+			#print "Found"
+			
+
+    #Return Graph Datastructure without self-loops
+	return g
+
+ 
+
+
 
 #Loading gene_interactions JSON file into a variable 
 with open('JSON rows/gene_interactions.json') as json_data:
@@ -55,17 +71,24 @@ for edge in graph_info:
 	graph.add_edge(edge[0],edge[2])
 
 
+#Obtaining the Graph Data Structure after removal of Self-Loops
+graph = self_loop_presence(graph)
 
-#find_minimum_cut(graph)
 
-
+""" Commented Code - For drawing the Graphs """
 #Drawing the Graph in MatPlotLib   --- Takes a lot of time to load
 #nx.draw(graph)
 #nx.draw_random(graph)
 #nx.draw_circular(graph)
 #nx.draw_spectral(graph)
-
 #plt.show()
+
+
+
+#List of Connected Components
+connected_components =  list(nx.connected_components(graph))
+
+
 
 
 
