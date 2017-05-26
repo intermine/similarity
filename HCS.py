@@ -18,7 +18,7 @@ from py2neo import Node, Relationship, Graph
 import re
 import string
 import networkx as nx
-from networkx.algorithms.connectivity import minimum_st_edge_cut
+from networkx.algorithms.connectivity import minimum_st_edge_cut,minimum_edge_cut
 import matplotlib.pyplot as plt
 
 """ Max Flow algorithm for Minimum Cut """
@@ -48,14 +48,14 @@ def find_minimum_cut(g):
 
 	if start != end:
 		#List of edges comprising of the Cut Set
-		edge_set = minimum_st_edge_cut(g,start,end)
+		edge_set = minimum_edge_cut(g,start,end)
 	else:
 		edge_set = []
 
 
 	#List of edges in cut-set
 	cut_set = list(edge_set)
-
+	
 	return cut_set
 
 	
@@ -97,6 +97,8 @@ def HCS(connected_graph):
 
 	#Find the Minimum Cut-edges
 	cut_edges = find_minimum_cut(temp_connected_graph)
+	print "Cut edges"
+	print cut_edges
 
 	if cut_edges==0:
 		return
@@ -121,8 +123,8 @@ def HCS(connected_graph):
 		print "HCS Found"
 		return
 
-    
-    #Divide the two components and pass into HCS
+	
+	#Divide the two components and pass into HCS
 	else:
 		#Removal of the edges from the Graph to form separate connected components
 		for item in cut_edges:
@@ -187,7 +189,7 @@ def HCS(connected_graph):
 		#if total != (len(cut_edges) + len(first_graph.edges()) + len(second_graph.edges())):
 		#	print "Error"
 
-        #print len(list(nx.connected_components(second_graph)))
+		#print len(list(nx.connected_components(second_graph)))
 		#print len(list(nx.connected_components(second_graph)))
 
 
@@ -279,7 +281,26 @@ def test():
 	test_graph.add_edge(2,4)
 	test_graph.add_edge(3,4)
 
+	#Printing First Test Case
+	#print "First Test Case"
+	#HCS(test_graph)
+
+
+
+	test_graph.add_node(5)
+	test_graph.add_node(6)
+	test_graph.add_node(7)
+
+	test_graph.add_edge(4,5)
+	test_graph.add_edge(5,6)
+	test_graph.add_edge(5,7)
+	test_graph.add_edge(6,7)
+
+	print "Second Test Case"
 	HCS(test_graph)
+
+
+
 
 	#print test_graph.nodes()
 
