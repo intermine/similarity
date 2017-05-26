@@ -27,6 +27,8 @@ def find_minimum_cut(g):
 
 	#List of edges in the component
 	edge_list = g.edges()
+	if len(edge_list)==0:
+		return 0
 	#Source for Edward-Karp Algorithm
 	start = edge_list[0][0]
 	#Sink Initialization
@@ -82,9 +84,22 @@ def HCS(connected_graph):
 	#Initialization for connected sub-graphs
 	temp_connected_graph = nx.Graph()
 	temp_connected_graph = connected_graph
+	print len(connected_graph.nodes())
+	print len(connected_graph.edges())
+	print "#"
+
+	if len(temp_connected_graph.nodes())==0 or len(temp_connected_graph.nodes())==1:
+		return
+
+
+	if len(temp_connected_graph.edges())==0:
+		return
 
 	#Find the Minimum Cut-edges
 	cut_edges = find_minimum_cut(temp_connected_graph)
+
+	if cut_edges==0:
+		return
 
 	total =  len(temp_connected_graph.edges())
 
@@ -100,6 +115,9 @@ def HCS(connected_graph):
 		temp_list = []
 		temp_list.append(temp_connected_graph.nodes)
 		clusters.append(temp_list)
+		print temp_list
+		print "########"
+		return
 
     
     #Divide the two components and pass into HCS
@@ -107,6 +125,10 @@ def HCS(connected_graph):
 		#Removal of the edges from the Graph to form separate connected components
 		for item in cut_edges:
 			temp_connected_graph.remove_edge(item[0],item[1])
+
+
+		if len(temp_connected_graph.edges())==0:
+			return
 
 
 		connected_components = list(nx.connected_components(temp_connected_graph))
@@ -234,7 +256,7 @@ def main_clustering(component, main_graph):
 
 	
 	#Calling HCS function : @parameters => #temp_graph : Connected Graph
-	HCS(temp_graph)
+	#HCS(temp_graph)
 
 
 
@@ -309,9 +331,14 @@ g = list(connected_components_as_subgraph)
 #Looping to pass each component into main_clustering to obtain sub_clusters
 for component in g:
 	#Calls main_clustering each time with connected components : list(component) - (List of nodes in that component) & Original Graph Structure 
-	main_clustering(list(component),graph)
+	#main_clustering(list(component),graph)
 	#print len(list(component))
 	break
+
+
+
+
+
 	
 
 
