@@ -113,10 +113,12 @@ def HCS(connected_graph):
 	if edge_connectivity > (number_of_nodes/2): 
 		#Store the nodes in a temporary list
 		temp_list = []
-		temp_list.append(temp_connected_graph.nodes)
+		#temp_list.append(list(temp_connected_graph.nodes))
+		tmp = temp_connected_graph.nodes()
 		clusters.append(temp_list)
+		temp_list.append(tmp)
 		print temp_list
-		print "########"
+		print "HCS Found"
 		return
 
     
@@ -263,7 +265,23 @@ def main_clustering(component, main_graph):
 
 
 
+def test():
+	test_graph = nx.Graph()
+	test_graph.add_node(1)
+	test_graph.add_node(2)
+	test_graph.add_node(3)
+	test_graph.add_node(4)
 
+	test_graph.add_edge(1,2)
+	test_graph.add_edge(1,3)
+	test_graph.add_edge(1,4)
+	test_graph.add_edge(2,3)
+	test_graph.add_edge(2,4)
+	test_graph.add_edge(3,4)
+
+	HCS(test_graph)
+
+	#print test_graph.nodes()
 
 
 	
@@ -342,9 +360,6 @@ for component in g:
 	
 
 
+#Test
 
-
-
-
-
-
+test()
