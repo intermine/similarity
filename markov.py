@@ -45,32 +45,39 @@ def save_graph(graph,file_name):
 
 temp = []
 
+
 #Function to Implement Depth for Search for finding Cycle
-def detect_cycle(start,graph,current,temp,cycles):
-	#Checking the adjacent edge and recursively calling the function
-	for edge in graph.edges():
-		if start == edge[0]:
-			end = edge[1]
-			for item in graph_nodes:
-				if item[0] == end:
-					color = item[1]
-					#Already Visited Node -- Cycle Found
-					if color == 'b':
-						print "Cycle Found"
-						cycles.append(temp)
-						print temp
-						#print current
+def detect_cycle(start,graph,pred,temp,cycles):
+	
+	
+	#Color the Visiting Node
+	
+	print pred
+	print start
+	
+	graph_nodes[start]='b'
+	#print graph_nodes
+	visiting_list = []
+	for edge in graph:
+		if edge[0] == start:
+			visiting_list.append(edge[1])
+	#print visiting_list
 
-						cycles.append(1)
 
-					else:
-						item[1] ='b'
-						current = end
-						temp.append(end)
-						detect_cycle(end,graph,current,temp,cycles)
-					break
+	for vertex in visiting_list:
+		if graph_nodes[vertex]=='b':
+			#print "Cycle Found"
+			if pred!=vertex:
+				print "Cycle"
+				
+				print start 
+				#print vertex
+			
+			
+		else:
+			detect_cycle(vertex,graph,start,temp,cycles)
 
-		temp = []
+		
 
 
 				
@@ -81,11 +88,14 @@ def detect_cycle(start,graph,current,temp,cycles):
 def cycle_detection(graph):
 	for item in graph_nodes:
 		#This means this node is not visited
-		if item[1] == 'w':
+		if graph_nodes[item] == 'w':
 			#Color the node and mark it as visited
-			item[1] = 'b'
-			current = item[0]
-			detect_cycle(item[0],graph,current,[],[])
+			detect_cycle(item,graph,0,[],[])
+			print "%%"
+
+
+
+	#print graph.edges()
 
 
 
@@ -104,22 +114,24 @@ def test_cases():
 	test_graph.add_node(3)
 	test_graph.add_node(4)
 	test_graph.add_node(5)
-	test_graph.add_node(6)
-	test_graph.add_node(7)
-	test_graph.add_node(8)
-	test_graph.add_node(9)
+	#test_graph.add_node(4)
+	#test_graph.add_node(5)
+	#test_graph.add_node(6)
+
 
 	#Test Edges
 	test_graph.add_edge(1,2)
 	test_graph.add_edge(2,3)
-	test_graph.add_edge(2,4)
-	test_graph.add_edge(4,5)
-	test_graph.add_edge(4,6)
-	test_graph.add_edge(5,6)
-	test_graph.add_edge(7,8)
-	test_graph.add_edge(7,9)
-	test_graph.add_edge(8,9)
+	#test_graph.add_edge(3,4)
+	test_graph.add_edge(4,1)
 	test_graph.add_edge(3,5)
+	test_graph.add_edge(4,5)
+	#test_graph.add_edge(3,4)
+	#test_graph.add_edge(4,5)
+	#test_graph.add_edge(4,6)
+	#test_graph.add_edge(5,6)
+
+	
 
 
 	return test_graph
@@ -142,8 +154,10 @@ target = []
 #Creating NetworkX instance
 graph = nx.Graph()
 
+
 #Extracting the edge relationships
 for edge in graph_info:
+	temp = []
 	source.append(edge[0])
 	target.append(edge[2])
 
@@ -158,15 +172,34 @@ for edge in graph_info:
 test_graph = nx.Graph()
 test_graph = test_cases()
 #Creation of appropriate data structure for DFS -- Initially mark all nodes
-graph_nodes = []
+graph_nodes = {}
 for item in test_graph.nodes():
+	graph_nodes[item] = 'w'
+
+
+#print graph_nodes
+
+#Create Edge List
+edge_list = []
+for item in test_graph.edges():
 	temp = []
-	temp.append(item)
-	temp.append('w')
-	graph_nodes.append(temp)
+	temp.append(item[0])
+	temp.append(item[1])
+	edge_list.append(temp)
+	temp = []
+	temp.append(item[1])
+	temp.append(item[0])
+	edge_list.append(temp)
 
-cycle_detection(test_graph)
 
+#print edge_list
+#print graph_nodes
+
+
+print edge_list
+cycle_detection(edge_list)
+
+predecessor = 0
 
 #save_graph(graph,"intermine.pdf")
 
