@@ -97,8 +97,8 @@ def HCS(connected_graph):
 
 	#Find the Minimum Cut-edges
 	cut_edges = find_minimum_cut(temp_connected_graph)
-	print "Cut edges"
-	print cut_edges
+	#print "Cut edges"
+	#print cut_edges
 
 	if cut_edges==0:
 		return
@@ -260,7 +260,7 @@ def main_clustering(component, main_graph):
 
 	
 	#Calling HCS function : @parameters => #temp_graph : Connected Graph
-	#HCS(temp_graph)
+	HCS(temp_graph)
 
 
 
@@ -325,6 +325,7 @@ target = []
 #Creating NetworkX instance
 graph = nx.Graph()
 
+i = 0
 #Extracting the edge relationships
 for edge in graph_info:
 	source.append(edge[0])
@@ -332,6 +333,9 @@ for edge in graph_info:
 
 	#Adding the edge in NetworkX
 	graph.add_edge(edge[0],edge[2])
+	if i == 1000:
+		break
+	i = i + 1
 
 
 
@@ -370,9 +374,9 @@ g = list(connected_components_as_subgraph)
 #Looping to pass each component into main_clustering to obtain sub_clusters
 for component in g:
 	#Calls main_clustering each time with connected components : list(component) - (List of nodes in that component) & Original Graph Structure 
-	#main_clustering(list(component),graph)
+	main_clustering(list(component),graph)
 	#print len(list(component))
-	break
+	
 
 
 
@@ -383,4 +387,4 @@ for component in g:
 
 #Test
 
-test()
+#test()
