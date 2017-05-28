@@ -14,10 +14,10 @@ import networkx as nx
 from networkx.algorithms.connectivity import minimum_st_edge_cut,minimum_edge_cut
 import matplotlib.pyplot as plt
 from matplotlib import pylab
+import sys
 
 
-
-
+sys.setrecursionlimit(2000)
 #For Storage of Cycles
 cycles = []
 
@@ -46,14 +46,15 @@ def save_graph(graph,file_name):
 temp = []
 
 
-global number_of_cycles
 
-
+cycle_count = 0
 
 #Function to Implement Depth for Search for finding Cycle
 def detect_cycle(start,graph,pred,temp,cycles):
 	global cycle_count
-	cycle_count = 0
+
+	temp.append(start)
+	
 	
 	
 	#Color the Visiting Node
@@ -71,14 +72,17 @@ def detect_cycle(start,graph,pred,temp,cycles):
 		if graph_nodes[vertex]=='b':
 			#print "Cycle Found"
 			if pred!=vertex:
-				print "Cycle"
-				cycle_count = cycle_count + 1
-				print start	
 				
+				#print temp
+				cycle_count = cycle_count + 1	
+				print cycle_count
+
+				temp = []		
 			
 			
 		else:
 			detect_cycle(vertex,graph,start,temp,cycles)
+		#temp = []
 
 		
 
@@ -94,8 +98,7 @@ def cycle_detection(graph):
 		if graph_nodes[item] == 'w':
 			#Color the node and mark it as visited
 			detect_cycle(item,graph,0,[],[])
-			print graph_nodes
-			print "%%"
+			
 
 
 
@@ -114,13 +117,16 @@ def test_cases():
 
 
 
-	#Test Edges
+	#Test Edges -- Presence of Cycle
 	test_graph.add_edge(1,2)
 	test_graph.add_edge(2,3)
 	test_graph.add_edge(1,3)
 	test_graph.add_edge(3,4)
 	test_graph.add_edge(3,5)
 	test_graph.add_edge(4,5)
+	test_graph.add_edge(7,8)
+	test_graph.add_edge(7,9)
+	test_graph.add_edge(8,9)
 
 	
 
@@ -145,15 +151,18 @@ target = []
 #Creating NetworkX instance
 graph = nx.Graph()
 
-
+i = 0
 #Extracting the edge relationships
 for edge in graph_info:
-	temp = []
+	#temp = []
 	source.append(edge[0])
 	target.append(edge[2])
 
 	#Adding the edge in NetworkX
 	graph.add_edge(edge[0],edge[2])
+	if i==300:
+		break
+	i = i + 1
 
 
 
@@ -164,7 +173,7 @@ test_graph = nx.Graph()
 test_graph = test_cases()
 #Creation of appropriate data structure for DFS -- Initially mark all nodes
 graph_nodes = {}
-for item in test_graph.nodes():
+for item in graph.nodes():
 	graph_nodes[item] = 'w'
 
 
@@ -172,7 +181,7 @@ for item in test_graph.nodes():
 
 #Create Edge List
 edge_list = []
-for item in test_graph.edges():
+for item in graph.edges():
 	temp = []
 	temp.append(item[0])
 	temp.append(item[1])
@@ -183,14 +192,11 @@ for item in test_graph.edges():
 	edge_list.append(temp)
 
 
-#print edge_list
-#print graph_nodes
 
-
-print edge_list
 cycle_detection(edge_list)
 
-predecessor = 0
 
-#save_graph(graph,"intermine.pdf")
 
+save_graph(graph,"intermine.pdf")
+
+print cycle_count/2
