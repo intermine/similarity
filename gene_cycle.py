@@ -46,15 +46,18 @@ def save_graph(graph,file_name):
 temp = []
 
 
+global number_of_cycles
+
+
+
 #Function to Implement Depth for Search for finding Cycle
 def detect_cycle(start,graph,pred,temp,cycles):
+	global cycle_count
+	cycle_count = 0
 	
 	
 	#Color the Visiting Node
-	
-	print pred
-	print start
-	
+
 	graph_nodes[start]='b'
 	#print graph_nodes
 	visiting_list = []
@@ -69,9 +72,9 @@ def detect_cycle(start,graph,pred,temp,cycles):
 			#print "Cycle Found"
 			if pred!=vertex:
 				print "Cycle"
+				cycle_count = cycle_count + 1
+				print start	
 				
-				print start 
-				#print vertex
 			
 			
 		else:
@@ -91,6 +94,7 @@ def cycle_detection(graph):
 		if graph_nodes[item] == 'w':
 			#Color the node and mark it as visited
 			detect_cycle(item,graph,0,[],[])
+			print graph_nodes
 			print "%%"
 
 
@@ -106,30 +110,17 @@ def cycle_detection(graph):
 #Test Cases for Testing the Algorithm
 def test_cases():
 	#Temporary Test Graph
-	test_graph = nx.Graph()
+	test_graph = nx.Graph()	
 
-	#Test Nodes
-	test_graph.add_node(1)
-	test_graph.add_node(2)
-	test_graph.add_node(3)
-	test_graph.add_node(4)
-	test_graph.add_node(5)
-	#test_graph.add_node(4)
-	#test_graph.add_node(5)
-	#test_graph.add_node(6)
 
 
 	#Test Edges
 	test_graph.add_edge(1,2)
 	test_graph.add_edge(2,3)
-	#test_graph.add_edge(3,4)
-	test_graph.add_edge(4,1)
+	test_graph.add_edge(1,3)
+	test_graph.add_edge(3,4)
 	test_graph.add_edge(3,5)
 	test_graph.add_edge(4,5)
-	#test_graph.add_edge(3,4)
-	#test_graph.add_edge(4,5)
-	#test_graph.add_edge(4,6)
-	#test_graph.add_edge(5,6)
 
 	
 
