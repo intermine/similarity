@@ -196,12 +196,9 @@ def main_operation():
 	#Initializing variable for Neo4j Analytics
 	neo4j_graph = Graph('http://localhost:7474/db/data/cypher/')
 	#Calling function for performing graph analytics on Neo4j
-	#graph_analytics(neo4j_graph)
-
-	print graph.nodes()[0]
-	print graph.nodes()[4]
-
-	path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
+	graph_analytics(neo4j_graph)
+    #Calling function for finding path between two nodes
+	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
 
 
