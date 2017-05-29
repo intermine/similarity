@@ -17,7 +17,7 @@ from matplotlib import pylab
 import sys
 
 
-sys.setrecursionlimit(2000)
+sys.setrecursionlimit(10000)
 #For Storage of Cycles
 cycles = []
 
@@ -51,16 +51,15 @@ cycle_count = 0
 
 #Function to Implement Depth for Search for finding Cycle
 def detect_cycle(start,graph,pred,temp,cycles):
+	#For tracking cycle count
 	global cycle_count
-
-	temp.append(start)
-	
-	
+	cycle_count = cycle_count + 1
+	temp.append(start)	
 	
 	#Color the Visiting Node
-
 	graph_nodes[start]='b'
 	#print graph_nodes
+
 	visiting_list = []
 	for edge in graph:
 		if edge[0] == start:
@@ -73,9 +72,8 @@ def detect_cycle(start,graph,pred,temp,cycles):
 			#print "Cycle Found"
 			if pred!=vertex:
 				
-				#print temp
 				cycle_count = cycle_count + 1	
-				print cycle_count
+				#print cycle_count
 
 				temp = []		
 			
@@ -86,10 +84,7 @@ def detect_cycle(start,graph,pred,temp,cycles):
 
 		
 
-
 				
-
-			
 
 #Function for Detecting Cycles in the Given Network -- Implementation of DFS
 def cycle_detection(graph):
@@ -99,15 +94,6 @@ def cycle_detection(graph):
 			#Color the node and mark it as visited
 			detect_cycle(item,graph,0,[],[])
 			
-
-
-
-	#print graph.edges()
-
-
-
-
-#End of function
 
 
 #Test Cases for Testing the Algorithm
@@ -128,75 +114,70 @@ def test_cases():
 	test_graph.add_edge(7,9)
 	test_graph.add_edge(8,9)
 
-	
-
 
 	return test_graph
 
 
+""" @Main Function -- Responsible for calling functions which do smaller graph operations """
+
+def main_operation():
+	#Loading gene_interactions JSON file into a variable 
+	with open('JSON rows/gene_interactions.json') as json_data:
+		interactions = json.load(json_data)
+
+
+	#Information about Graph Connectivity
+	graph_info = interactions["results"]
+
+	source = []
+	target = []
+
+	#Creating NetworkX instance
+	graph = nx.Graph()
+
+	i = 0
+	#Extracting the edge relationships
+	for edge in graph_info:
+		#temp = []
+		source.append(edge[0])
+		target.append(edge[2])
+
+		#Adding the edge in NetworkX
+		graph.add_edge(edge[0],edge[2])
+		
+
+
+	test_graph = nx.Graph()
+	test_graph = test_cases()
+	#Creation of appropriate data structure for DFS -- Initially mark all nodes
+	graph_nodes = {}
+	for item in graph.nodes():
+		graph_nodes[item] = 'w'
+
+
+	#Create Edge List
+	edge_list = []
+	for item in graph.edges():
+		temp = []
+		temp.append(item[0])
+		temp.append(item[1])
+		edge_list.append(temp)
+		temp = []
+		temp.append(item[1])
+		temp.append(item[0])
+		edge_list.append(temp)
 
 
 
-#Loading gene_interactions JSON file into a variable 
-with open('JSON rows/gene_interactions.json') as json_data:
-	interactions = json.load(json_data)
+	cycle_detection(edge_list)
+	
+	#save_graph(graph,"intermine.pdf")
 
-
-#Information about Graph Connectivity
-graph_info = interactions["results"]
-
-source = []
-target = []
-
-#Creating NetworkX instance
-graph = nx.Graph()
-
-i = 0
-#Extracting the edge relationships
-for edge in graph_info:
-	#temp = []
-	source.append(edge[0])
-	target.append(edge[2])
-
-	#Adding the edge in NetworkX
-	graph.add_edge(edge[0],edge[2])
-	if i==300:
-		break
-	i = i + 1
+	print cycle_count/2
 
 
 
-#print len(graph.nodes())
-#print len(graph.edges())
-
-test_graph = nx.Graph()
-test_graph = test_cases()
-#Creation of appropriate data structure for DFS -- Initially mark all nodes
-graph_nodes = {}
-for item in graph.nodes():
-	graph_nodes[item] = 'w'
 
 
-#print graph_nodes
-
-#Create Edge List
-edge_list = []
-for item in graph.edges():
-	temp = []
-	temp.append(item[0])
-	temp.append(item[1])
-	edge_list.append(temp)
-	temp = []
-	temp.append(item[1])
-	temp.append(item[0])
-	edge_list.append(temp)
-
-
-
-cycle_detection(edge_list)
-
-
-
-save_graph(graph,"intermine.pdf")
-
-print cycle_count/2
+#Calling main_operation function for detecting cycles
+main_operation()
