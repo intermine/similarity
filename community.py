@@ -17,9 +17,16 @@ import matplotlib.pyplot as plt
 
 
 
-
+#Declarations for Functions
+self_loops = {}
+edges_of_nodes = {}
+communities = []
+actual_partition = []
 
 def apply_louvain(nodes,edges):
+	#Global variable for self-loops
+	global self_loops
+	
 	#Initialization for sum of weights of all links
 	m = 0
 	#Sum of all weights incident on a given node
@@ -27,34 +34,99 @@ def apply_louvain(nodes,edges):
 	for node in nodes:
 		incident_weight[node] = 0
 
+	#Initially remove any self-edges if present in the graph -- Initially the algorithm would not be able to handle self loops
+	for edge in edges:
+		if edge[0] == edge[1]:
+			edges.remove(edge)
+
+	#Edges corresponding to a particular Node
+	global edges_of_nodes
+	
+
+	#Communities
+	global communities 
+	communities = [node for node in nodes]
+	
+	global actual_partition
+	actual_partition = []
+
+	#Storing the edges corresponding to each Node
 	for edge in edges:
 		m += edge[2]
 		incident_weight[edge[0]] += edge[2]
 		#incident_weight[edge[1]] += edge[2]
 
+		#For each node add the edges corresponding to it
+		if edge[0] not in edges_of_nodes:
+			edges_of_nodes[edge[0]] = [edge]
+		else:
+			edges_of_nodes[edge[0]].append(edge)
+
+
+	
+
 	#Halved : Undirected Nature of Graph
 	m = m/2
 
+	#End of Initialization
+
+	network = (nodes,edges)
+
 	#Initial Step : Assigning Different Community to all the Different Nodes
 	best_partition = [[node] for node in nodes]
-	partition = first_phase(nodes,edges)
+
+	partition = first_phase(network)
 
 
 
+	
 
-def first_phase(nodes,edges):
+
+
+#Function to perform first phase of louvain algorithm
+def first_phase(network):
 	#Calling partition function for initially Assigning Communities
-	best_partition = initial_partition(nodes,edges)
+	best_partition = initial_partition(network)
+	
 
 
 
-def second_phase(nodes,edges):
-	return 1
+#Function to get the Neighbours
+def neighbours(node):
+	neighbour_node = []
+	for item in edges_of_nodes[node]:
+		#Self-Loop
+		if item[0]==item[1]:
+			continue
+		else:
+			neighbour_node.append(item[1])
+
+	return neighbour_node
 
 
-def initial_partition(nodes,edges):
+
+
+#Function for Initializing Partition
+def initial_partition(network):
 	#Initially assigning communities to nodes
+	nodes = network[0]
+	edges = network[1]
 	partition = [[node] for node in nodes]
+
+	#Initialize self_loops
+	for node in nodes:
+		self_loops[node] = 0 
+	
+	#Adding information about self-loops over here
+	for edge in edges:
+		#Presence of Self-Loop
+		if edge[0]==edge[1]:
+			self_loops[edge[0]] += edge[2]
+			self_loops[edge[1]] += edge[2]
+
+	#Return a list of nodes according to partition
+	return partition
+
 
 
 
