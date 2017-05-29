@@ -1,6 +1,7 @@
 
 """  InterMine @ Open Genome Informatics : Similarity Project
-   -> Application of Cycle Detection Algorithm to understand the dependencies of the Genes  
+   -> Application of Cycle Detection Algorithm to understand the dependencies of the Genes 
+   -> Application of Graph Analysis methods using Neo4j 
    -> Treatment of the Data Set as Undirected Graph -- Just Interactions taken into account """
 
 
@@ -44,9 +45,7 @@ def save_graph(graph,file_name):
 
 
 temp = []
-
-
-
+#Initialization
 cycle_count = 0
 
 #Function to Implement Depth for Search for finding Cycle
@@ -74,18 +73,13 @@ def detect_cycle(start,graph,pred,temp,cycles):
 				
 				cycle_count = cycle_count + 1	
 				#print cycle_count
-
-				temp = []		
-			
+				temp = []
 			
 		else:
 			detect_cycle(vertex,graph,start,temp,cycles)
 		#temp = []
 
-		
-
 				
-
 #Function for Detecting Cycles in the Given Network -- Implementation of DFS
 def cycle_detection(graph):
 	for item in graph_nodes:
@@ -101,8 +95,6 @@ def test_cases():
 	#Temporary Test Graph
 	test_graph = nx.Graph()	
 
-
-
 	#Test Edges -- Presence of Cycle
 	test_graph.add_edge(1,2)
 	test_graph.add_edge(2,3)
@@ -116,6 +108,32 @@ def test_cases():
 
 
 	return test_graph
+
+#Function to perform functions via Neo4j operations
+def graph_analytics(graph):
+
+	#For finding Triangular cycles in the Graph -- For tracking short range interactions
+	triangular_cycle = graph.data("match (a)-[:INTERACTS]->(b)-[:INTERACTS]->(c)-[:INTERACTS]->(a) return distinct a,b,c")
+	
+	#For Finding Self-Loops in the Graph
+	loop = graph.data("match (n)-[r]->(n) return n")
+
+
+
+
+
+
+#Function to get a Path between given a Pair of Nodes
+def path_node(graph,node1,node2):
+    #Neo4j Query for finding paths	
+	query = ''' match p=(n1)-[:INTERACTS*]-(n2) where n1.gene = {gene1} and n2.gene = {gene2} return p'''
+	#List of Paths
+	paths = graph.data(query,gene1=node1,gene2=node2)
+
+	print paths	
+
+
+
 
 
 """ @Main Function -- Responsible for calling functions which do smaller graph operations """
@@ -169,13 +187,21 @@ def main_operation():
 
 
 
-	cycle_detection(edge_list)
-	
+	#cycle_detection(edge_list)
+
 	#save_graph(graph,"intermine.pdf")
 
-	print cycle_count/2
+	#print cycle_count/2
 
+	#Initializing variable for Neo4j Analytics
+	neo4j_graph = Graph('http://localhost:7474/db/data/cypher/')
+	#Calling function for performing graph analytics on Neo4j
+	#graph_analytics(neo4j_graph)
 
+	print graph.nodes()[0]
+	print graph.nodes()[4]
+
+	path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
 
 
