@@ -16,6 +16,9 @@ from networkx.algorithms.connectivity import minimum_st_edge_cut,minimum_edge_cu
 import matplotlib.pyplot as plt
 from matplotlib import pylab
 import sys
+import numpy as np
+from sklearn.decomposition import PCA
+from mpl_toolkits.mplot3d import Axes3D
 
 
 sys.setrecursionlimit(10000)
@@ -24,24 +27,24 @@ cycles = []
 
 #Function for Drawing the Graph
 def save_graph(graph,file_name):
-    #initialze Figure
-    plt.figure(num=None, figsize=(20, 20), dpi=80)
-    plt.axis('off')
-    fig = plt.figure(1)
-    pos = nx.spring_layout(graph)
-    nx.draw_networkx_nodes(graph,pos)
-    nx.draw_networkx_edges(graph,pos)
-    nx.draw_networkx_labels(graph,pos)
+	#initialze Figure
+	plt.figure(num=None, figsize=(20, 20), dpi=80)
+	plt.axis('off')
+	fig = plt.figure(1)
+	pos = nx.spring_layout(graph)
+	nx.draw_networkx_nodes(graph,pos)
+	nx.draw_networkx_edges(graph,pos)
+	nx.draw_networkx_labels(graph,pos)
 
-    cut = 1.00
-    xmax = cut * max(xx for xx, yy in pos.values())
-    ymax = cut * max(yy for xx, yy in pos.values())
-    plt.xlim(0, xmax)
-    plt.ylim(0, ymax)
+	cut = 1.00
+	xmax = cut * max(xx for xx, yy in pos.values())
+	ymax = cut * max(yy for xx, yy in pos.values())
+	plt.xlim(0, xmax)
+	plt.ylim(0, ymax)
 
-    plt.savefig(file_name,bbox_inches="tight")
-    pylab.close()
-    del fig
+	plt.savefig(file_name,bbox_inches="tight")
+	pylab.close()
+	del fig
 
 
 temp = []
@@ -53,7 +56,7 @@ def detect_cycle(start,graph,pred,temp,cycles):
 	#For tracking cycle count
 	global cycle_count
 	cycle_count = cycle_count + 1
-	temp.append(start)	
+	temp.append(start)  
 	
 	#Color the Visiting Node
 	graph_nodes[start]='b'
@@ -71,7 +74,7 @@ def detect_cycle(start,graph,pred,temp,cycles):
 			#print "Cycle Found"
 			if pred!=vertex:
 				
-				cycle_count = cycle_count + 1	
+				cycle_count = cycle_count + 1   
 				#print cycle_count
 				temp = []
 			
@@ -90,10 +93,10 @@ def cycle_detection(graph):
 			
 
 
-#Test Cases for Testing the Algorithm
+#Test Cases for Testing the Algorithm : Cycle Detection
 def test_cases():
 	#Temporary Test Graph
-	test_graph = nx.Graph()	
+	test_graph = nx.Graph() 
 
 	#Test Edges -- Presence of Cycle
 	test_graph.add_edge(1,2)
@@ -125,7 +128,7 @@ def graph_analytics(graph):
 
 #Function to get a Path between given a Pair of Nodes
 def path_node(graph,node1,node2):
-    #Neo4j Query for finding paths	
+	#Neo4j Query for finding paths  
 	query = ''' match p=(n1)-[:INTERACTS*]-(n2) where n1.gene = {gene1} and n2.gene = {gene2} return p'''
 	#List of Paths
 	paths = graph.data(query,gene1=node1,gene2=node2)
@@ -133,9 +136,36 @@ def path_node(graph,node1,node2):
 
 	return paths
 
+#Function to plot the centrality 3-Dimensional Data after PCA
+def plot_3D(dataset):
+	#Elements along X-axis
+	x = [np.take(ele,0) for ele in dataset]
+	#Elements along Y-axis
+	y = [np.take(ele,1) for ele in dataset]
+	#Elements along Z-axis
+	z = [np.take(ele,2) for ele in dataset]
+	#Conversion into Numpy Array
+	x = np.array(x)
+	y = np.array(y)
+	z = np.array(z)
 
-""" Based on Research Paper Results : Centrality Analysis Methods for Biological Networks and Their Application to Gene Networks
-     @Capable of finding the top regulators in the Network """
+	fig = plt.figure()
+	#Creating a subplot
+	ax =fig.add_subplot(111,projection='3d')
+	#Scatter Graph with parameters
+	ax.scatter(x,y,z,c='r',marker='o')
+	#Setting Labels for each dimension
+	ax.set_xlabel('X label')
+	ax.set_xlabel('Y label')
+	ax.set_xlabel('Z label')
+
+	#Displaying the plot
+	plt.show()
+
+
+
+
+
 #Function to find out the most important nodes in the network using Connectivity Measures
 def network_centralization(graph):
 	#Degree Centrality -- Fraction of Node the node is connected to
@@ -161,6 +191,7 @@ def network_centralization(graph):
 
 	#Computing a list of centralities for each node
 	centralities = {}
+	feature_list = []
 
 
 	#Creation of Dictionary with all centrality measures for each node
@@ -171,10 +202,21 @@ def network_centralization(graph):
 		temp.append(centrality_betweenness[node])
 		#temp.append(centrality_communicability[node])
 		temp.append(page_rank[node])
+		feature_list.append(temp)
 		centralities[node] = temp
 
+	#Initializing the numpy array
+	feature_list = np.array(feature_list)
 
-	print centralities	
+	pca = PCA(n_components = 3)
+
+	new_list = pca.fit(feature_list)
+
+	#Get the components from transforming the original data
+	matrix = pca.transform(feature_list)
+
+	#Plotting the 3D Data
+	plot_3D(matrix) 
 
 
 
@@ -185,7 +227,7 @@ def network_centralization(graph):
 """ @Main Function -- Responsible for calling functions which do smaller graph operations """
 
 def main_operation():
-	#Loading gene_interactions JSON file into a variable 
+	#Loading gene interactions JSON file into a variable 
 	with open('JSON rows/gene_interactions.json') as json_data:
 		interactions = json.load(json_data)
 
@@ -243,10 +285,11 @@ def main_operation():
 	neo4j_graph = Graph('http://localhost:7474/db/data/cypher/')
 	#Calling function for performing graph analytics on Neo4j
 	#graph_analytics(neo4j_graph)
-    #Calling function for finding path between two nodes
+	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
 	network_centralization(graph)
+
 
 
 
