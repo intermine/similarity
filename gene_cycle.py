@@ -147,8 +147,8 @@ def network_centralization(graph):
 	#Betweenness Centrality -- Fraction of all pair shortest paths that pass through the node
 	centrality_betweenness = nx.betweenness_centrality(graph)
 
-	#Communicability Centrality -- Sum of closed walks of all length starting and ending at node n
-	centrality_communicability = nx.communicability_centrality(graph) 
+	#Communicability Centrality -- Sum of closed walks of all length starting and ending at node n (Currently commented ->Needs high memory to run)
+	#centrality_communicability = nx.communicability_centrality(graph) 
 
 	#Katz Centrality - Number of paths that pass through the node : Variation of closeness centrality
 	""" alpha : Attenuation factor  """
@@ -162,11 +162,6 @@ def network_centralization(graph):
 	#Computing a list of centralities for each node
 	centralities = {}
 
-	print len(centrality_degree)
-	print len(centrality_closeness)
-	print len(centrality_betweenness)
-	print len(centrality_communicability)
-	print len(page_rank)
 
 	#Creation of Dictionary with all centrality measures for each node
 	for node in graph.nodes():
@@ -174,21 +169,18 @@ def network_centralization(graph):
 		temp.append(centrality_degree[node])
 		temp.append(centrality_closeness[node])
 		temp.append(centrality_betweenness[node])
-		temp.append(centrality_communicability[node])
+		#temp.append(centrality_communicability[node])
 		temp.append(page_rank[node])
 		centralities[node] = temp
 
 
-
-
-
-
-
-	
+	print centralities	
 
 
 
 	return 1
+
+
 
 """ @Main Function -- Responsible for calling functions which do smaller graph operations """
 
