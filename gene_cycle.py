@@ -118,6 +118,8 @@ def graph_analytics(graph):
 	#For Finding Self-Loops in the Graph
 	loop = graph.data("match (n)-[r]->(n) return n")
 
+	print triangular_cycle
+
 
 
 
@@ -130,11 +132,24 @@ def path_node(graph,node1,node2):
 	#List of Paths
 	paths = graph.data(query,gene1=node1,gene2=node2)
 
-	print paths	
+
+	return paths
 
 
+#Function to find out the most important nodes in the network using Connectivity Measures
+def network_centralization(graph):
+	#Degree Centrality -- Fraction of Node the node is connected to
+	centrality_degree = nx.degree_centrality(graph)
 
+	#Closeness Centrality -- Reciprocal of the sum of the short paths from the node to all the other nodes
+	centrality_closeness = nx.closeness_centrality(graph)
 
+	#Betweenness Centrality -- Fraction of all pair shortest paths that pass through the node
+	centrality_betweenness = betweenness_centrality(graph)
+
+	
+
+	return 1
 
 """ @Main Function -- Responsible for calling functions which do smaller graph operations """
 
@@ -196,9 +211,11 @@ def main_operation():
 	#Initializing variable for Neo4j Analytics
 	neo4j_graph = Graph('http://localhost:7474/db/data/cypher/')
 	#Calling function for performing graph analytics on Neo4j
-	graph_analytics(neo4j_graph)
+	#graph_analytics(neo4j_graph)
     #Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
+
+	network_centralization(graph)
 
 
 

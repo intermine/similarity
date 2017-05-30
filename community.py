@@ -6,6 +6,7 @@
 
 
 #Libraries 
+import community
 import json
 import pandas as pd
 from py2neo import Node, Relationship, Graph
@@ -87,7 +88,7 @@ def apply_louvain(nodes,edges):
 def first_phase(network):
 	#Calling partition function for initially Assigning Communities
 	best_partition = initial_partition(network)
-	
+
 
 
 
@@ -178,6 +179,12 @@ def main():
 
 	#Function Call to apply the Louvain Algorithm
 	apply_louvain(nodes,edges)
+
+	G = nx.erdos_renyi_graph(30, 0.05)
+
+	#first compute the best partition
+	partition = community.best_partition(G)
+
 
 
 	
