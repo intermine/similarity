@@ -123,8 +123,6 @@ def graph_analytics(graph):
 
 
 
-
-
 #Function to get a Path between given a Pair of Nodes
 def path_node(graph,node1,node2):
     #Neo4j Query for finding paths	
@@ -136,6 +134,8 @@ def path_node(graph,node1,node2):
 	return paths
 
 
+""" Based on Research Paper Results : Centrality Analysis Methods for Biological Networks and Their Application to Gene Networks
+     @Capable of finding the top regulators in the Network """
 #Function to find out the most important nodes in the network using Connectivity Measures
 def network_centralization(graph):
 	#Degree Centrality -- Fraction of Node the node is connected to
@@ -145,9 +145,48 @@ def network_centralization(graph):
 	centrality_closeness = nx.closeness_centrality(graph)
 
 	#Betweenness Centrality -- Fraction of all pair shortest paths that pass through the node
-	centrality_betweenness = betweenness_centrality(graph)
+	centrality_betweenness = nx.betweenness_centrality(graph)
+
+	#Communicability Centrality -- Sum of closed walks of all length starting and ending at node n
+	centrality_communicability = nx.communicability_centrality(graph) 
+
+	#Katz Centrality - Number of paths that pass through the node : Variation of closeness centrality
+	""" alpha : Attenuation factor  """
+	#centrality_katz = nx.katz_centrality(graph,alpha=0.1,beta=1.0,max_iter=20000)
+
+	#PageRank -- Returns the ranking of the nodes based on the structure of links
+	""" alpha : Dampening Factor for PageRank """
+	page_rank = nx.pagerank(graph,alpha=0.8)
+
+
+	#Computing a list of centralities for each node
+	centralities = {}
+
+	print len(centrality_degree)
+	print len(centrality_closeness)
+	print len(centrality_betweenness)
+	print len(centrality_communicability)
+	print len(page_rank)
+
+	#Creation of Dictionary with all centrality measures for each node
+	for node in graph.nodes():
+		temp = []
+		temp.append(centrality_degree[node])
+		temp.append(centrality_closeness[node])
+		temp.append(centrality_betweenness[node])
+		temp.append(centrality_communicability[node])
+		temp.append(page_rank[node])
+		centralities[node] = temp
+
+
+
+
+
+
 
 	
+
+
 
 	return 1
 
