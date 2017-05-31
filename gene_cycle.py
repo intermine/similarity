@@ -2,6 +2,7 @@
 """  InterMine @ Open Genome Informatics : Similarity Project
    -> Application of Cycle Detection Algorithm to understand the dependencies of the Genes 
    -> Application of Graph Analysis methods using Neo4j 
+   -> Application of Graph Centrality Measures to find Similarity Amongst Nodes
    -> Treatment of the Data Set as Undirected Graph -- Just Interactions taken into account """
 
 
@@ -168,7 +169,7 @@ def plot_3D(dataset):
 #Function to perform Silhouette Analysis to determine the optimum amount of clusters
 def silhouette_analysis(dataset):
 	#Range of number of clusters
-	cluster_range = [2,3,4,5,6]
+	cluster_range = [2,3,4,5,6,7,8,9,10]
 
 	#Silhouette Scores
 	silhouette_scores = []
@@ -196,11 +197,11 @@ def silhouette_analysis(dataset):
 	#Final labels for the cluster
 	labels = clusterer.fit_predict(dataset)
 
-	print final_cluster
+	#print final_cluster
 
 
 
-	return 1
+	return labels 
 
 
 
@@ -259,10 +260,7 @@ def network_centralization(graph):
 	#plot_3D(matrix)
 
 	#Silhouette Analysis
-	silhouette_analysis(feature_list)
-
-
-
+	node_labels = silhouette_analysis(feature_list)
 
 
 	return 1
