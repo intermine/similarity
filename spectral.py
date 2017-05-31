@@ -17,6 +17,22 @@ from matplotlib import pylab
 import sys
 import numpy as np 
 import collections
+from sklearn.cluster import KMeans
+
+#Function to compute the eigen vectors and eigen value & Apply K-means
+def spectral_clustering(lap):
+	#Eigen Values and Eigen Values for the Normalized Laplacian
+	#w, v = np.linalg.eig(lap)
+	#s = np.asanyarray(lap)
+	
+
+	print lap[0].size
+
+
+
+	
+
+	return 1
 
 #Base function for making function calls
 def main_operation():
@@ -40,7 +56,14 @@ def main_operation():
 	#Converting into numpy array
 	adjacency_matrix = nx.to_numpy_matrix(graph)
 
-	
+	#Conversion into Laplacian matrix
+	#laplacian_matrix = nx.laplacian_matrix(graph)
+
+	#Normalized Laplacian Matrix
+	normalized_laplacian = nx.normalized_laplacian_matrix(graph)
+
+	#Function Call for Spectral Clustering
+	spectral_clustering(normalized_laplacian)
 
 
 
