@@ -18,6 +18,8 @@ from matplotlib import pylab
 import sys
 import numpy as np
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_samples, silhouette_score
 from mpl_toolkits.mplot3d import Axes3D
 
 
@@ -163,6 +165,44 @@ def plot_3D(dataset):
 	plt.show()
 
 
+#Function to perform Silhouette Analysis to determine the optimum amount of clusters
+def silhouette_analysis(dataset):
+	#Range of number of clusters
+	cluster_range = [2,3,4,5,6]
+
+	#Silhouette Scores
+	silhouette_scores = []
+
+	for cluster in cluster_range:
+		#Initialize clusterer with number of clusters as cluster
+		clusterer = KMeans(n_clusters=cluster, random_state=10)
+		#Fit the dataset and get the index of each cluster
+		cluster_labels = clusterer.fit_predict(dataset)
+		#Average of the scores of all samples(points)
+		silhouette_avg = silhouette_score(dataset, cluster_labels)
+		silhouette_scores.append(silhouette_avg)
+		print silhouette_avg
+
+	#Obtaining the maximum silhouette score and the number of clusters corresponding to it
+	max_score = max(silhouette_scores)
+	index = silhouette_scores.index(max_score)
+
+	#Final number of clusters for K-means to run
+	final_cluster = cluster_range[index]
+
+	#Cluster corresponding to the optimum cluster number
+	clusterer = KMeans(n_clusters=final_cluster,random_state=10)
+
+	#Final labels for the cluster
+	labels = clusterer.fit_predict(dataset)
+
+	print final_cluster
+
+
+
+	return 1
+
+
 
 
 
@@ -216,7 +256,12 @@ def network_centralization(graph):
 	matrix = pca.transform(feature_list)
 
 	#Plotting the 3D Data
-	plot_3D(matrix) 
+	#plot_3D(matrix)
+
+	#Silhouette Analysis
+	silhouette_analysis(feature_list)
+
+
 
 
 
@@ -289,6 +334,10 @@ def main_operation():
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
 	network_centralization(graph)
+
+	#Testing Purpose
+	#data = np.random.rand(50,4)
+	#silhouette_analysis(data)
 
 
 
