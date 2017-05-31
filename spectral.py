@@ -20,6 +20,25 @@ import collections
 from sklearn.cluster import KMeans
 import scipy.sparse as sparse
 
+'''
+   Spectral Clustering Algorithm : 
+      -> Based on the connectivity between the nodes
+      Steps: 
+            1. Compute Adjacency Matrix for the given Graph
+            2. Compute the Laplacian Matrix for the Graph (Diagonal Degree Matrix - Adjacency Matrix)
+            3. Normalize the matrix
+            4. Get the Eigen Values and Eigen Vectors corresponding to the Normalized Laplacian Matrix
+            5. Choose the number of clusters (say k), then choose k eigen vectors corresponding to eigen values
+            6. Apply K-means on them to cluster the nodes with number of clusters as k
+
+      @_parameters : 
+         lap => normalized laplacian matrix
+         eigen_number => The number of Eigen vectors to be obtained
+
+      @_return :
+         A numpy array with cluster labels corresponding to each node 
+'''
+
 #Function to compute the eigen vectors and eigen value & Apply K-means
 def spectral_clustering(lap,eigen_number):
 
@@ -60,25 +79,36 @@ def main_operation():
 	#Converting into numpy array
 	adjacency_matrix = nx.to_numpy_matrix(graph)
 
-	#Conversion into Laplacian matrix
-	#laplacian_matrix = nx.laplacian_matrix(graph)
-
 	#Normalized Laplacian Matrix
 	normalized_laplacian = nx.normalized_laplacian_matrix(graph)
 
+	#The number of eigen vectors to be obtained for K-means clustering
 	eigen_number = 2
 
 	#Function Call for Spectral Clustering
 	cluster_labels = spectral_clustering(normalized_laplacian,eigen_number)
 
+	#List of Nodes
+	nodes = graph.nodes()
+
+	#Cluster consisting of similar nodes
+	clusters = {}
+
+	#Initializing the clusters
+	for num in range(0,eigen_number):
+		clusters[num] = []
+
+	i=0
+
+	#Populating with the actual node names in the cluster
+	for cluster_number in cluster_labels:
+		clusters[cluster_number].append(nodes[i])
+		i+=1
+
+
+
 	
 
 
-
-
-
-	
-
-
-
+#Call the main function for Implementing Spectral Clustering 
 main_operation()
