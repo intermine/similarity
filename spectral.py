@@ -18,24 +18,28 @@ import sys
 import numpy as np 
 import collections
 from sklearn.cluster import KMeans
+import scipy.sparse as sparse
 
 #Function to compute the eigen vectors and eigen value & Apply K-means
-def spectral_clustering(lap):
-	#Eigen Values and Eigen Values for the Normalized Laplacian
-	#w, v = np.linalg.eig(lap)
-	#s = np.asanyarray(lap)
+def spectral_clustering(lap,eigen_number):
+
+	#Eigen Values and Eigen Values for the Normalized Laplacian Sparse Array
+	w, v = sparse.linalg.eigs(lap,k=eigen_number)	
 	
+	#Apply K-means to cluster
+	clustered = KMeans(n_clusters=eigen_number,random_state=10)
 
-	print lap[0].size
+	#Predict the Labels
+	cluster_labels = clustered.fit_predict(v)
+
+	#Returns a numpy array consisting of cluster assignment to each node
+	return cluster_labels
 
 
-
-	
-
-	return 1
 
 #Base function for making function calls
 def main_operation():
+
 	#Loading gene interactions JSON file into a variable 
 	with open('JSON rows/gene_interactions.json') as json_data:
 		interactions = json.load(json_data)
@@ -62,8 +66,12 @@ def main_operation():
 	#Normalized Laplacian Matrix
 	normalized_laplacian = nx.normalized_laplacian_matrix(graph)
 
+	eigen_number = 2
+
 	#Function Call for Spectral Clustering
-	spectral_clustering(normalized_laplacian)
+	cluster_labels = spectral_clustering(normalized_laplacian,eigen_number)
+
+	
 
 
 
