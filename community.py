@@ -1,6 +1,7 @@
 
 """  InterMine @ Open Genome Informatics : Similarity Project
-   -> Implementation of the Girvan Newmann Algorithm for Community Detection -- Using Fast Heuristics 
+   -> Implementation of the Girvan Newman Algorithm for Community Detection 
+   -> Girvan Newman : Hierarchial - Divisive in nature : Begin with one group containing all points and then divide successfully
    -> Treatment of the Data Set as Undirected Graph -- Just Interactions taken into account """
 
 
@@ -16,9 +17,48 @@ from networkx.algorithms.connectivity import minimum_st_edge_cut,minimum_edge_cu
 import matplotlib.pyplot as plt
 
 
+#Function to compute the degree of the nodes
+def get_degree(graph,adjacency_matrix):
+	#To be returned by the function
+	degree_dict = {}
+
+	#Node List
+	node_list = graph.nodes()
+
+	#Total Number of Nodes
+	number_nodes = len(graph.nodes())
+
+	#Computing the sum of each row
+	Sum = adjacency_matrix.sum(axis=1)
+
+	for i in range(0,number_nodes):
+		degree_dict[node_list[i]] = Sum[i,0]
+
+	#Return a dictionary consisting of nodes and their corresponding degree
+	return degree_dict
 
 
 
+
+
+
+
+''' Girvan Newmann Algorithm : 
+      Basic overview : 
+             Edge Betweenness => Fraction of all pair shortest path that pass through a Given Edge
+             Bridge => Considered to be an edge which has a high edge Betweenness
+             B/w distinct communities there should be presence of bridges
+
+      Steps: 
+            1. Compute the edge Betweenness for the graph
+            2. Choose the edge with the highest edge betweenness and remove into
+            3. Go to step 1 until no edges are left
+                                                                                                   '''	
+
+#Function to implement Girvan Newmann Algorithm
+def girvan_newmann(graph):
+	
+	
 
 
 	
@@ -51,7 +91,7 @@ def main():
 		target.append(edge[2])
 
 		#Adding the edge in NetworkX
-		graph.add_edge(edge[0],edge[2])
+		graph.add_edge(edge[0],edge[2],weight=1.0)
 
 	#Nodes :[node1,node2,node3.......]
 	nodes = []
@@ -72,6 +112,28 @@ def main():
 		temp.append(edge[0])
 		temp.append(1)
 		edges.append(temp)
+
+	#Adjacency Matrix -- Returns a Scipy Sparse Matrix
+	adjacency_matrix = nx.adj_matrix(graph)
+
+	#Number of Nodes
+	n = nx.number_of_nodes(graph)
+
+	#Calculating the weighted degree for each node
+	degree_node = get_degree(graph,adjacency_matrix)
+
+	print degree_node
+
+	m = 0.0
+	for i in range(0,n):
+		for j in range(0,n):
+			m += adjacency_matrix[i,j]
+
+
+	print m
+
+
+	#girvan_newmann(graph)
 
 	
 
