@@ -111,7 +111,7 @@ def compute_girvan_newman(graph,degree_node,edge_weight):
 	#At least once community reassignment has been done
 	if best_modularity > 0.0:
 		print community_components
-		print len(community_components)
+		#print len(community_components)
 	else:
 		print "No community reassignment possible"
 
