@@ -15,6 +15,7 @@ import string
 import networkx as nx
 from networkx.algorithms.connectivity import minimum_st_edge_cut,minimum_edge_cut
 import matplotlib.pyplot as plt
+import numpy as np 
 
 
 #Function to compute the degree of the nodes
@@ -44,20 +45,20 @@ def get_degree(graph,adjacency_matrix):
 
 
 ''' Girvan Newmann Algorithm : 
-      Basic overview : 
-             Edge Betweenness => Fraction of all pair shortest path that pass through a Given Edge
-             Bridge => Considered to be an edge which has a high edge Betweenness
-             B/w distinct communities there should be presence of bridges
+	  Basic overview : 
+			 Edge Betweenness => Fraction of all pair shortest path that pass through a Given Edge
+			 Bridge => Considered to be an edge which has a high edge Betweenness
+			 B/w distinct communities there should be presence of bridges
 
-      Steps: 
-            1. Compute the edge Betweenness for the graph
-            2. Choose the edge with the highest edge betweenness and remove into
-            3. Go to step 1 until no edges are left (If modularity is improving then add to the community structure)
+	  Steps: 
+			1. Compute the edge Betweenness for the graph
+			2. Choose the edge with the highest edge betweenness and remove into
+			3. Go to step 1 until no edges are left (If modularity is improving then add to the community structure)
 
 
-      Measure of checking Community Structure : Modularity
-                                                                                                   
-                                                                                                   '''	
+	  Measure of checking Community Structure : Modularity
+																								   
+																								   '''	
 
 
 
@@ -65,7 +66,6 @@ def get_degree(graph,adjacency_matrix):
 def girvan_newman(graph):
 	initial_components = nx.number_connected_components(graph)
 	temp_comp = initial_components
-	print temp_comp
 	while temp_comp<=initial_components:
 		#Edge Betweenness values -- Returns dictionary of edges with centrality as values
 		edge_betweenness = nx.edge_betweenness_centrality(graph)
@@ -83,11 +83,50 @@ def girvan_newman(graph):
 
 
 
-
+""" Function : compute_girvan_newman => New communities are assigned only when there is an improvement in the modularity score """
 
 #Function to call girvan_newman until and unless all edges are consumed -- Checked with respect to modularity at every step
-def compute_girvan_newman(graph,degree_node):
-	return 1
+def compute_girvan_newman(graph,degree_node,edge_weight):
+	#Initialize modularity
+	best_modularity = 0.0
+	#Temporary modularity variable
+	modularity = 0.0 
+	iteration = 0
+
+	#Run a loop until all the edges are consumed
+	while True:
+		#Removes an edge to increase number of connected components
+		girvan_newman(graph)
+		#modularity 
+		modularity = girvan_newman_modularity(graph,degree_node,edge_weight)
+
+		if modularity > best_modularity:
+			#Reassignment of best modularity
+			best_modularity = modularity
+			#As modularity has improved -- Assignment into communities
+			community_components = nx.connected_components(graph)
+
+		print iteration + 1
+		iteration +=1
+
+
+
+		if graph.number_of_edges()==0:
+			break
+
+	#At least once community reassignment has been done
+	if best_modularity > 0.0:
+		print community_components
+	else:
+		print "No community reassignment possible"
+
+
+
+#Function to determine the modularity after a split
+
+	
+
+
 
 	
 
@@ -120,6 +159,9 @@ def main():
 		#temp = []
 		source.append(edge[0])
 		target.append(edge[2])
+		#Don't add a self-loop
+		if edge[0] == edge[2]:
+			continue
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2],weight=1.0)
@@ -156,18 +198,12 @@ def main():
 	#Calculating the weighted degree for each node
 	degree_node = get_degree(graph,adjacency_matrix)
 
-	#print degree_node
+	#Sum of Edge Weights
+	sum_of_edge_weights =  np.sum(adjacency_matrix)
 
-	#m = 0.0
-	#for i in range(0,n):
-#		for j in range(0,n):
-	#		m += adjacency_matrix[i,j]
+	print sum_of_edge_weights
 
-
-	#print m
-
-
-	compute_girvan_newman(graph,degree_node)
+	compute_girvan_newman(graph,degree_node,sum_of_edge_weights)
 
 	
 
