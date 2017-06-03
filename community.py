@@ -52,12 +52,43 @@ def get_degree(graph,adjacency_matrix):
       Steps: 
             1. Compute the edge Betweenness for the graph
             2. Choose the edge with the highest edge betweenness and remove into
-            3. Go to step 1 until no edges are left
+            3. Go to step 1 until no edges are left (If modularity is improving then add to the community structure)
+
+
+      Measure of checking Community Structure : Modularity
+                                                                                                   
                                                                                                    '''	
 
-#Function to implement Girvan Newmann Algorithm
-def girvan_newmann(graph):
-	
+
+
+#Function to extract the edge with maximum edge betweenness and remove it from the graph
+def girvan_newman(graph):
+	initial_components = nx.number_connected_components(graph)
+	temp_comp = initial_components
+	print temp_comp
+	while temp_comp<=initial_components:
+		#Edge Betweenness values -- Returns dictionary of edges with centrality as values
+		edge_betweenness = nx.edge_betweenness_centrality(graph)
+		#Finding edge with maximum betweenness
+		max_edge = max(edge_betweenness.values())
+		for k,v in edge_betweenness.iteritems():
+			if v == max_edge:
+				#Remove the edge from the network
+				graph.remove_edge(k[0],k[1])
+
+		#Recalculating the number of connected components -- Will break out of the loop once an extra component is formed due to removal of edge
+		temp_comp = nx.number_connected_components(graph)
+
+
+
+
+
+
+
+#Function to call girvan_newman until and unless all edges are consumed -- Checked with respect to modularity at every step
+def compute_girvan_newman(graph,degree_node):
+	return 1
+
 	
 
 
@@ -92,6 +123,9 @@ def main():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2],weight=1.0)
+		if i == 2000:
+			break
+		i = i + 1
 
 	#Nodes :[node1,node2,node3.......]
 	nodes = []
@@ -122,18 +156,18 @@ def main():
 	#Calculating the weighted degree for each node
 	degree_node = get_degree(graph,adjacency_matrix)
 
-	print degree_node
+	#print degree_node
 
-	m = 0.0
-	for i in range(0,n):
-		for j in range(0,n):
-			m += adjacency_matrix[i,j]
-
-
-	print m
+	#m = 0.0
+	#for i in range(0,n):
+#		for j in range(0,n):
+	#		m += adjacency_matrix[i,j]
 
 
-	#girvan_newmann(graph)
+	#print m
+
+
+	compute_girvan_newman(graph,degree_node)
 
 	
 
