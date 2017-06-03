@@ -41,9 +41,6 @@ def get_degree(graph,adjacency_matrix):
 
 
 
-
-
-
 ''' Girvan Newmann Algorithm : 
 	  Basic overview : 
 			 Edge Betweenness => Fraction of all pair shortest path that pass through a Given Edge
@@ -106,9 +103,6 @@ def compute_girvan_newman(graph,degree_node,edge_weight):
 			#As modularity has improved -- Assignment into communities
 			community_components = nx.connected_components(graph)
 
-		print iteration + 1
-		iteration +=1
-
 
 
 		if graph.number_of_edges()==0:
@@ -117,27 +111,41 @@ def compute_girvan_newman(graph,degree_node,edge_weight):
 	#At least once community reassignment has been done
 	if best_modularity > 0.0:
 		print community_components
+		print len(community_components)
 	else:
 		print "No community reassignment possible"
 
 
 
 #Function to determine the modularity after a split
+def girvan_newman_modularity(graph,degree_node,edge_weight):
+	#Adjacency matrix - New
+	new_adjacency = nx.adj_matrix(graph)
+	#New degree_node Initialization
+	new_degree = {}
+	#Obtaining a dictionary of nodes with degrees
+	new_degree = get_degree(graph,new_adjacency)
+	#Number of components
+	components = nx.connected_components(graph)
+	#Modularity Initialization
+	modularity = 0 
+	for component in components:
+		edges_within_community = 0
+		random_edges = 0
+		for node in component:
+			edges_within_community += new_degree[node]
+			random_edges = degree_node[node]
 
-	
+		modularity += (float(edges_within_community) - float(random_edges*random_edges)/(2*edge_weight))
+
+
+	modularity = modularity / float(2*edge_weight)
+
+	return modularity
 
 
 
-	
-
-
-	
-
-
-
-
-
-
+#Function to call sub-parts of Girvan Algorithm for Community Detection
 def main():
 	#Loading gene_interactions JSON file into a variable 
 	with open('JSON rows/gene_interactions.json') as json_data:
@@ -201,8 +209,7 @@ def main():
 	#Sum of Edge Weights
 	sum_of_edge_weights =  np.sum(adjacency_matrix)
 
-	print sum_of_edge_weights
-
+	#Function Call for calling Girvan Community Detection Algorithm
 	compute_girvan_newman(graph,degree_node,sum_of_edge_weights)
 
 	
