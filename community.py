@@ -16,6 +16,7 @@ import networkx as nx
 from networkx.algorithms.connectivity import minimum_st_edge_cut,minimum_edge_cut
 import matplotlib.pyplot as plt
 import numpy as np 
+import itertools
 
 
 #Function to compute the degree of the nodes
@@ -89,7 +90,7 @@ def compute_girvan_newman(graph,degree_node,edge_weight):
 	#Temporary modularity variable
 	modularity = 0.0 
 	iteration = 0
-
+	edges = 0
 	#Run a loop until all the edges are consumed
 	while True:
 		#Removes an edge to increase number of connected components
@@ -97,21 +98,25 @@ def compute_girvan_newman(graph,degree_node,edge_weight):
 		#modularity 
 		modularity = girvan_newman_modularity(graph,degree_node,edge_weight)
 
+		#print modularity
+
 		if modularity > best_modularity:
+			edges +=1
 			#Reassignment of best modularity
 			best_modularity = modularity
 			#As modularity has improved -- Assignment into communities
 			community_components = nx.connected_components(graph)
-
-
+			answer = [community for community in community_components]
+			#print list(community_components)
 
 		if graph.number_of_edges()==0:
 			break
 
 	#At least once community reassignment has been done
 	if best_modularity > 0.0:
-		print community_components
-		#print len(community_components)
+		#List consisting of communities
+		print answer
+		#print edges
 	else:
 		print "No community reassignment possible"
 
@@ -173,9 +178,9 @@ def main():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2],weight=1.0)
-		if i == 2000:
-			break
-		i = i + 1
+		#if i == 1000:
+		#	break
+		#i = i + 1
 
 	#Nodes :[node1,node2,node3.......]
 	nodes = []
@@ -209,15 +214,16 @@ def main():
 	#Sum of Edge Weights
 	sum_of_edge_weights =  np.sum(adjacency_matrix)
 
+	#print list(nx.connected_components(graph))
+
 	#Function Call for calling Girvan Community Detection Algorithm
 	compute_girvan_newman(graph,degree_node,sum_of_edge_weights)
+	#nx.draw(graph)
+
+	#plt.show()
 
 	
 
 
-
-	
-
-
-
+#Call to the main function for implementing Girvan Newmann Algorithm
 main()
