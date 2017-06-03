@@ -325,7 +325,7 @@ def main_operation():
 	#print cycle_count/2
 
 	#Initializing variable for Neo4j Analytics
-	neo4j_graph = Graph('http://localhost:7474/db/data/cypher/')
+	#neo4j_graph = Graph('http://localhost:7474/db/data/cypher/')
 	#Calling function for performing graph analytics on Neo4j
 	#graph_analytics(neo4j_graph)
 	#Calling function for finding path between two nodes
