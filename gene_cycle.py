@@ -200,8 +200,14 @@ def silhouette_analysis(dataset):
 
 	#print final_cluster
 
-	return labels 
+	return labels
 
+
+""" 
+    Description => _function network_centralization
+        := Computes Features based on connectivity in Graph and information pertaining to Genes(Pathway,Ontology,Protein Domains)
+        := Structural Features based on Centrality Measures
+        := Nodal Features are one-hot encoded [Ontology, Domains, Pathway]       """
 
 
 
