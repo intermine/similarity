@@ -208,7 +208,7 @@ def silhouette_analysis(dataset):
 
 
 #Function to find out the most important nodes in the network using Connectivity Measures
-def network_centralization(graph):
+def network_centralization(graph,protein_domain,gene_ontology):
 	#Degree Centrality -- Fraction of Node the node is connected to
 	centrality_degree = nx.degree_centrality(graph)
 
@@ -243,6 +243,21 @@ def network_centralization(graph):
 		temp.append(centrality_betweenness[node])
 		#temp.append(centrality_communicability[node])
 		temp.append(page_rank[node])
+
+		#Adding information corresponding to Protein Domains
+		try:
+			number_of_domains =  len(protein_domain[node])
+			temp.append(number_of_domains)
+		except:
+			temp.append(0)
+
+		#Adding information corresponding to Gene Ontology
+		try:
+			ontology_terms = len(gene_ontology[node])
+			temp.append(ontology_terms)
+		except:
+			temp.append(0)
+
 		feature_list.append(temp)
 		centralities[node] = temp
 
@@ -262,8 +277,7 @@ def network_centralization(graph):
 	#Silhouette Analysis
 	node_labels = silhouette_analysis(feature_list)
 
-
-	return 1
+	return node_labels
 
 
 
@@ -295,7 +309,7 @@ def main_operation():
 		graph.add_edge(edge[0],edge[2])
 
 		#Temporary Conditions - For smaller cases -- To be commented
-		if i == 1000:
+		if i == 2000:
 			break
 		i +=1
 		
@@ -374,14 +388,6 @@ def main_operation():
 	unique_ontologies = list(set(ontology_id))
 
 
-
-
-
-
-
-
-
-
 	#cycle_detection(edge_list)
 
 	#save_graph(graph,"intermine.pdf")
@@ -395,7 +401,7 @@ def main_operation():
 	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
-	#network_centralization(graph)
+	final_clusters = network_centralization(graph,protein_domain,gene_ontology)
 
 	#Testing Purpose
 	#data = np.random.rand(50,4)
