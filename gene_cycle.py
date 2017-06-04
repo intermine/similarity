@@ -303,6 +303,7 @@ def main_operation():
 
 	test_graph = nx.Graph()
 	test_graph = test_cases()
+
 	#Creation of appropriate data structure for DFS -- Initially mark all nodes
 	graph_nodes = {}
 	for item in graph.nodes():
@@ -344,7 +345,35 @@ def main_operation():
 
 	#Unique protein ID's
 	unique_protein_id = list(set(protein_id))
-	
+
+
+	#Gene Ontology Information
+	with open('JSON rows/gene_goterms.json') as json_data:
+		go_terms = json.load(json_data)
+
+
+	#Storing only essential information
+	go_terms = go_terms["results"]
+
+	#Storing genes and their corresponding GO_terms
+	gene_ontology = {}
+
+	#Ontology ID's
+	ontology_id = []
+
+	#Initial population
+	for onto in go_terms:
+		gene_ontology[onto[0]] = []
+		ontology_id.append(onto[5])
+
+	for onto in go_terms:
+		gene_ontology[onto[0]].append(onto[5])
+
+
+	#Unique List of Ontologies
+	unique_ontologies = list(set(ontology_id))
+
+
 
 
 
