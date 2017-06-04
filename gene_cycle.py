@@ -22,6 +22,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 from mpl_toolkits.mplot3d import Axes3D
+import pandas as pd
 
 
 sys.setrecursionlimit(10000)
@@ -199,16 +200,13 @@ def silhouette_analysis(dataset):
 
 	#print final_cluster
 
-
-
 	return labels 
 
 
 
 
-
 #Function to find out the most important nodes in the network using Connectivity Measures
-def network_centralization(graph,protein_domain,gene_ontology):
+def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,unique_ontologies):
 	#Degree Centrality -- Fraction of Node the node is connected to
 	centrality_degree = nx.degree_centrality(graph)
 
@@ -244,25 +242,59 @@ def network_centralization(graph,protein_domain,gene_ontology):
 		#temp.append(centrality_communicability[node])
 		temp.append(page_rank[node])
 
-		#Adding information corresponding to Protein Domains
+		#Adding information corresponding to Number of Protein Domains
 		try:
 			number_of_domains =  len(protein_domain[node])
 			temp.append(number_of_domains)
 		except:
 			temp.append(0)
 
-		#Adding information corresponding to Gene Ontology
+		#Adding information corresponding to Number of Ontologies
 		try:
 			ontology_terms = len(gene_ontology[node])
 			temp.append(ontology_terms)
 		except:
 			temp.append(0)
 
+		
+		""" Treatment of Gene Ontology Information and Protein Domain Information as categorical variables """
+	
+		#Adding Protein Domain features 
+		try:
+			domains = protein_domain[node]
+			domain_vector = [0] * len(unique_protein_id)
+			for domain in domains:
+				position = unique_protein_id.index(domain)
+				domain_vector[position] = 1
+
+			temp = temp + domain_vector
+
+		except:
+			domain_vector = [0] * len(unique_protein_id)
+			temp = temp + domain_vector
+
+		#Adding Gene Ontology Features
+		try:
+			ontology = gene_ontology[node]
+			ontology_vector = [0] * len(unique_ontologies)
+			for onto in ontology:
+				position = unique_ontologies.index(onto)
+				ontology_vector[position] = 1
+
+			temp = temp + ontology_vector
+
+		except:
+			ontology_vector = [0] * len(unique_ontologies)
+			temp = temp + ontology_vector
+
+
 		feature_list.append(temp)
 		centralities[node] = temp
 
+  
 	#Initializing the numpy array
 	feature_list = np.array(feature_list)
+
 
 	pca = PCA(n_components = 3)
 
@@ -306,12 +338,7 @@ def main_operation():
 		target.append(edge[2])
 
 		#Adding the edge in NetworkX
-		graph.add_edge(edge[0],edge[2])
-
-		#Temporary Conditions - For smaller cases -- To be commented
-		if i == 2000:
-			break
-		i +=1
+		graph.add_edge(edge[0],edge[2])	
 		
 
 
@@ -348,8 +375,8 @@ def main_operation():
 	protein_domain = {}
 
 	protein_id = []
-    
-    #Initial Population
+	
+	#Initial Population
 	for protein_info in proteins:
 		protein_domain[protein_info[0]] = []
 		protein_id.append(protein_info[1])
@@ -401,7 +428,17 @@ def main_operation():
 	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
-	final_clusters = network_centralization(graph,protein_domain,gene_ontology)
+	final_clusters = network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,unique_ontologies)
+
+	#Drawing the Graph
+	colors = {}
+	for node in graph.nodes():
+		index = graph.nodes().index(node)
+		colors[node] = final_clusters[index]
+
+	values = [colors.get(node,0.25) for node in graph.nodes()]
+	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
+	plt.show()
 
 	#Testing Purpose
 	#data = np.random.rand(50,4)
