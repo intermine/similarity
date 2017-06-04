@@ -293,6 +293,11 @@ def main_operation():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2])
+
+		#Temporary Conditions - For smaller cases -- To be commented
+		if i == 1000:
+			break
+		i +=1
 		
 
 
@@ -304,7 +309,7 @@ def main_operation():
 		graph_nodes[item] = 'w'
 
 
-	#Create Edge List
+	#Create Edge List for Cycle Detection
 	edge_list = []
 	for item in graph.edges():
 		temp = []
@@ -315,6 +320,36 @@ def main_operation():
 		temp.append(item[1])
 		temp.append(item[0])
 		edge_list.append(temp)
+
+
+	#Protein Domain information
+	with open('JSON rows/gene_proteindomains.json') as json_data:
+		proteins = json.load(json_data)
+
+	#Storing only essential information
+	proteins = proteins["results"]
+
+	#Storing Genes and their corresponding protein domains
+	protein_domain = {}
+
+	protein_id = []
+    
+    #Initial Population
+	for protein_info in proteins:
+		protein_domain[protein_info[0]] = []
+		protein_id.append(protein_info[1])
+
+	for protein_info in proteins:
+		protein_domain[protein_info[0]].append(protein_info[1])
+
+	#Unique protein ID's
+	unique_protein_id = list(set(protein_id))
+	
+
+
+
+
+
 
 
 
@@ -331,7 +366,7 @@ def main_operation():
 	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
-	network_centralization(graph)
+	#network_centralization(graph)
 
 	#Testing Purpose
 	#data = np.random.rand(50,4)
