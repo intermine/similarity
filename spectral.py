@@ -98,12 +98,27 @@ def main_operation():
 	for num in range(0,eigen_number):
 		clusters[num] = []
 
-	i=0
+	i = 0
 
 	#Populating with the actual node names in the cluster
 	for cluster_number in cluster_labels:
 		clusters[cluster_number].append(nodes[i])
 		i+=1
+
+	
+	#Visualization
+	cluster_dict = {}
+	for node in clusters[0]:
+		cluster_dict[node] = 0
+
+	for node in clusters[1]:
+		cluster_dict[node] = 1
+
+
+	#Drawing the Graph
+	values = [cluster_dict.get(node,0.25) for node in graph.nodes()]
+	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
+	plt.show()
 
 
 
