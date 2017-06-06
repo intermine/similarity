@@ -2,7 +2,7 @@
 """  InterMine @ Open Genome Informatics : Similarity Project
    -> Application of Cycle Detection Algorithm to understand the dependencies of the Genes 
    -> Application of Graph Analysis methods using Neo4j 
-   -> Application of Graph Centrality Measures to find Similarity Amongst Nodes
+   -> Application of Graph Centrality Measures and node features to find Similarity Amongst Nodes
    -> Treatment of the Data Set as Undirected Graph -- Just Interactions taken into account """
 
 
@@ -212,7 +212,7 @@ def silhouette_analysis(dataset):
 
 
 #Function to find out the most important nodes in the network using Connectivity Measures
-def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,unique_ontologies):
+def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways):
 	#Degree Centrality -- Fraction of Node the node is connected to
 	centrality_degree = nx.degree_centrality(graph)
 
@@ -262,6 +262,15 @@ def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,
 		except:
 			temp.append(0)
 
+
+		#Adding information corresponding to Number of Pathways
+		try:
+			number_of_pathway = len(gene_pathways[node])
+			temp.append(number_of_pathway)
+
+		except:
+			temp.append(0)
+
 		
 		""" Treatment of Gene Ontology Information and Protein Domain Information as categorical variables """
 	
@@ -293,14 +302,27 @@ def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,
 			ontology_vector = [0] * len(unique_ontologies)
 			temp = temp + ontology_vector
 
+		#Adding Gene Pathway features
+		try:
+			pathway = gene_pathways[node]
+			pathway_vector = [0] * len(unique_pathways)
+			for path in pathway:
+				position = unique_pathways.index(path)
+				pathway_vector[position] = 1
+
+			temp = temp + pathway_vector
+
+		except:
+			pathway_vector = [0] * len(unique_pathways)
+			temp = temp + pathway_vector
+
 
 		feature_list.append(temp)
 		centralities[node] = temp
 
-  
+	  
 	#Initializing the numpy array
 	feature_list = np.array(feature_list)
-
 
 	pca = PCA(n_components = 10)
 
@@ -375,7 +397,7 @@ def main_operation():
 		edge_list.append(temp)
 
 
-	#Protein Domain information
+	#Integrating Protein Domain information
 	with open('JSON rows/gene_proteindomains.json') as json_data:
 		proteins = json.load(json_data)
 
@@ -399,7 +421,7 @@ def main_operation():
 	unique_protein_id = list(set(protein_id))
 
 
-	#Gene Ontology Information
+	#Integrating Gene Ontology Information
 	with open('JSON rows/gene_goterms.json') as json_data:
 		go_terms = json.load(json_data)
 
@@ -426,6 +448,31 @@ def main_operation():
 	unique_ontologies = list(set(ontology_id))
 
 
+	#Integrating Gene Pathway Information
+	with open('JSON rows/gene_pathways.json') as json_data:
+		pathways = json.load(json_data)
+
+	#Storing essential pathway information
+	pathways = pathways["results"]
+
+	#Storing Gene ID's and their corresponding pathways
+	gene_pathways = {}
+
+	#Unique Pathway ID's
+	pathway_id = []
+
+	#Initialize Dictionary for "Gene":"Pathway ID"
+	for pathway in pathways:
+		gene_pathways[pathway[2]] = []
+		pathway_id.append(pathway[4])
+
+	#Population
+	for pathway in pathways:
+		gene_pathways[pathway[2]].append(pathway[4])
+
+	#Unique Pathway ID's
+	unique_pathways = list(set(pathway_id))
+
 	#cycle_detection(edge_list)
 
 	#save_graph(graph,"intermine.pdf")
@@ -439,7 +486,7 @@ def main_operation():
 	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
-	final_clusters = network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,unique_ontologies)
+	final_clusters = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
 
 	#Drawing the Graph
 	colors = {}
@@ -451,10 +498,7 @@ def main_operation():
 	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
 	plt.show()
 
-	#Testing Purpose
-	#data = np.random.rand(50,4)
-	#silhouette_analysis(data)
-
+	
 
 
 
