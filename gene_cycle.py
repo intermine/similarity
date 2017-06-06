@@ -302,18 +302,20 @@ def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,
 	feature_list = np.array(feature_list)
 
 
-	pca = PCA(n_components = 3)
+	pca = PCA(n_components = 10)
 
-	new_list = pca.fit(feature_list)
+	pca.fit(feature_list)
 
-	#Get the components from transforming the original data
+	print pca.explained_variance_ratio_
+
+	#Dimensionality Reduction to those components with maximum variance
 	matrix = pca.transform(feature_list)
 
 	#Plotting the 3D Data
 	#plot_3D(matrix)
 
-	#Silhouette Analysis
-	node_labels = silhouette_analysis(feature_list)
+	#Silhouette Analysis & K-means clustering
+	node_labels = silhouette_analysis(matrix)
 
 	return node_labels
 
@@ -345,6 +347,9 @@ def main_operation():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2])	
+		if i == 1000:
+			break
+		i+=1
 		
 
 
