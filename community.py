@@ -40,8 +40,6 @@ def get_degree(graph,adjacency_matrix):
 	return degree_dict
 
 
-
-
 ''' Girvan Newmann Algorithm : 
 	  Basic overview : 
 			 Edge Betweenness => Fraction of all pair shortest path that pass through a Given Edge
@@ -56,9 +54,7 @@ def get_degree(graph,adjacency_matrix):
 
 	  Measure of checking Community Structure : Modularity
 																								   
-																								   '''	
-
-
+																								   '''
 
 #Function to extract the edge with maximum edge betweenness and remove it from the graph
 def girvan_newman(graph):
@@ -76,8 +72,6 @@ def girvan_newman(graph):
 
 		#Recalculating the number of connected components -- Will break out of the loop once an extra component is formed due to removal of edge
 		temp_comp = nx.number_connected_components(graph)
-
-
 
 
 
@@ -115,10 +109,10 @@ def compute_girvan_newman(graph,degree_node,edge_weight):
 	#At least once community reassignment has been done
 	if best_modularity > 0.0:
 		#List consisting of communities
-		print answer
+		return answer
 		#print edges
 	else:
-		print "No community reassignment possible"
+		return []
 
 
 
@@ -147,6 +141,23 @@ def girvan_newman_modularity(graph,degree_node,edge_weight):
 	modularity = modularity / float(2*edge_weight)
 
 	return modularity
+
+
+#Function to visualize communities
+def draw_communities(communities,g):
+	#Color dictionary for assigning colors to different communities
+	color_dict = {}
+	color_ = 0 
+	for community in communities:
+		for node in community:
+			color_dict[node] = color_
+
+		color_ +=1
+
+	values = [color_dict.get(node,0.25) for node in g.nodes()]
+	nx.draw(g,cmap=plt.get_cmap('jet'),node_color = values)
+	plt.show()
+
 
 
 
@@ -178,9 +189,10 @@ def main():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2],weight=1.0)
-		#if i == 1000:
-		#	break
-		#i = i + 1
+		if i==100:
+			break
+		i+=1
+		
 
 	#Nodes :[node1,node2,node3.......]
 	nodes = []
@@ -205,6 +217,9 @@ def main():
 	#Adjacency Matrix -- Returns a Scipy Sparse Matrix
 	adjacency_matrix = nx.adj_matrix(graph)
 
+	#nx.draw(graph)
+	#plt.show()
+
 	#Number of Nodes
 	n = nx.number_of_nodes(graph)
 
@@ -214,13 +229,22 @@ def main():
 	#Sum of Edge Weights
 	sum_of_edge_weights =  np.sum(adjacency_matrix)
 
-	#print list(nx.connected_components(graph))
+	g = nx.Graph()
+	g = graph.copy()
 
 	#Function Call for calling Girvan Community Detection Algorithm
-	compute_girvan_newman(graph,degree_node,sum_of_edge_weights)
-	#nx.draw(graph)
+	community_set = compute_girvan_newman(graph,degree_node,sum_of_edge_weights)
 
-	#plt.show()
+    #List of Communities
+	communities = []
+
+	#Formulation of Communities as a list
+	for community in community_set:
+		temp = list(community)
+		communities.append(temp)
+
+    #Function call to draw and color communities
+	draw_communities(communities,g)
 
 	
 
