@@ -189,9 +189,7 @@ def main():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2],weight=1.0)
-		if i==100:
-			break
-		i+=1
+		
 		
 
 	#Nodes :[node1,node2,node3.......]
