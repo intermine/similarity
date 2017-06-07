@@ -1,7 +1,7 @@
 """ InterMine @ Open Genome Informatics - Similarity Project 
-    -> Extension to Hierarchical Agglomerative Clustering algorithm for handling mixed numeric & categorical data type (Possiblities of multiple values in one category)          
-    -> The distance metric will be divided into two parts : For Numeric => Euclidean, For categories => Jaccard Coefficient   
-    -> Based on http://edu.cs.uni-magdeburg.de/EC/lehre/sommersemester-2013/wissenschaftliches-schreiben-in-der-informatik/publikationen-fuer-studentische-vortraege/kMeansMixedCatNum.pdf """
+	-> Extension to Hierarchical Agglomerative Clustering algorithm (Single Link / Complete Link) for handling mixed numeric & categorical data type (Possiblities of multiple values in one category)          
+	-> The distance metric will be divided into two parts : For Numeric => Euclidean, For categories => Jaccard Coefficient   
+	-> Based on http://edu.cs.uni-magdeburg.de/EC/lehre/sommersemester-2013/wissenschaftliches-schreiben-in-der-informatik/publikationen-fuer-studentische-vortraege/kMeansMixedCatNum.pdf """
 
 
 
@@ -26,15 +26,14 @@ def union(list1,list2):
 	return list(set(list1) | set(list2))
 
 """ _Function_ name : distance_mixed 
-     @Parameters : 
-         1. datapoint1 => First feature vector
-         2. datapoint2 => Second feature vector
-         3. numeric => Number of numeric features in the vector 
-         4. categorical => Number of categorical features in the vector 
+	 @Parameters : 
+		 1. datapoint1 => First feature vector
+		 2. datapoint2 => Second feature vector
+		 3. numeric => Number of numeric features in the vector 
 
-     @Return : Distance b/w two mixed data points                                """
+	 @Return : Distance b/w two mixed data points                                """
 
-def distance_mixed(datapoint1,datapoint2,numeric,categorical):
+def distance_mixed(datapoint1,datapoint2,numeric):
 	#Numeric part of Two Points
 	point1_numeric = datapoint1[:numeric]
 	point2_numeric = datapoint2[:numeric]
@@ -64,23 +63,33 @@ def distance_mixed(datapoint1,datapoint2,numeric,categorical):
 
 	return (euclidean_distance + jaccard_distance)
 
+#Function to compute distances b/w every pair of points
+def compute_distance_matrix(dataset,numeric):
+	#Size of the distance matrix
+	n = len(dataset)
+
+	#Initializing the matrix with zero
+	distance_matrix = np.zeros(shape = (n,n))
+    
+    #Computation of the distance matrix
+	for first_point in dataset:
+		row = dataset.index(first_point)
+		for second_point in dataset:
+			column = dataset.index(second_point)
+			distance_matrix[row][column] = distance_mixed(first_point,second_point,numeric)
+
+
+	return distance_matrix
+
+	
+
 
 """ Function to implement a Hierarchical Agglomerative Clustering Algorithm for mixed type of datasets with categorical variables being allowed to hold multiple categorical values """
-def hierarchical_mixed(dataset,n_clusters,numeric,categorical):
-	#Based on the value of n_clusters -- Initialization of seeds
-	initial_centroid = random.sample(dataset,n_clusters)
-
-	print distance_mixed([1,2,3,4,['a','b'],[6]],[3,2,5,1,['a','b','c'],[5]],4,5)
-
-
-
-
-
-	return 1
-
-
-def has_converged():
-	return 1
+def hierarchical_mixed(dataset,n_clusters,numeric):
+	#Compute Distance Matrix (Complexity : O(n^2 * d)) , d=> dimension of feature
+	distance_matrix = compute_distance_matrix(dataset,numeric)
+	
+	print distance_matrix
 
 
 
@@ -89,10 +98,11 @@ def create_test_data():
 	data = []
 
 	#Data will have both categorical as well as numeric part
-	test = np.random.rand(10,10)
+	test = [[1,2,3,4,['a','b'],[6]],[3,2,5,1,['a','b','c'],[5]]]
 
 	#Calling the function
-	hierarchical_mixed(test,3,10,0)
+	hierarchical_mixed(test,2,4)
+	
 
 
 
