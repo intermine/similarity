@@ -19,7 +19,7 @@ from matplotlib import pylab
 import sys
 import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans,AgglomerativeClustering 
 from sklearn.metrics import silhouette_samples, silhouette_score
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -96,25 +96,6 @@ def cycle_detection(graph):
 			detect_cycle(item,graph,0,[],[])
 			
 
-
-#Test Cases for Testing the Algorithm : Cycle Detection
-def test_cases():
-	#Temporary Test Graph
-	test_graph = nx.Graph() 
-
-	#Test Edges -- Presence of Cycle
-	test_graph.add_edge(1,2)
-	test_graph.add_edge(2,3)
-	test_graph.add_edge(1,3)
-	test_graph.add_edge(3,4)
-	test_graph.add_edge(3,5)
-	test_graph.add_edge(4,5)
-	test_graph.add_edge(7,8)
-	test_graph.add_edge(7,9)
-	test_graph.add_edge(8,9)
-
-
-	return test_graph
 
 #Function to perform functions via Neo4j operations
 def graph_analytics(graph):
@@ -201,6 +182,15 @@ def silhouette_analysis(dataset):
 	#print final_cluster
 
 	return labels
+
+#Function to perform bottom up Agglomerative Clustering using Cosine Similarity Metric as Distance
+def agglomerative_clustering(dataset):
+	#Initialize instance of Agglomerative Clustering
+	agglomerative_cluster = AgglomerativeClustering(n_clusters=2,affinity='cosine',linkage='complete')
+	#Obtain the cluster Labels
+	cluster_labels = agglomerative_cluster.fit_predict(dataset)
+
+	return cluster_labels
 
 
 """ 
@@ -337,10 +327,23 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 	#plot_3D(matrix)
 
 	#Silhouette Analysis & K-means clustering
-	node_labels = silhouette_analysis(matrix)
+	node_labels_kmeans = silhouette_analysis(matrix)
+	node_labels_agglomerative = agglomerative_clustering(feature_list)
 
-	return node_labels
+	return node_labels_kmeans,node_labels_agglomerative
 
+
+#Function to visualize the InterMine Graph after clustering
+def visualize(graph,final_clusters):
+	#Drawing the Graph
+	colors = {}
+	for node in graph.nodes():
+		index = graph.nodes().index(node)
+		colors[node] = final_clusters[index]
+
+	values = [colors.get(node,0.25) for node in graph.nodes()]
+	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
+	plt.show()
 
 
 """ @Main Function -- Responsible for calling functions which do smaller graph operations """
@@ -368,15 +371,14 @@ def main_operation():
 		target.append(edge[2])
 
 		#Adding the edge in NetworkX
-		graph.add_edge(edge[0],edge[2])	
-		if i == 1000:
+		graph.add_edge(edge[0],edge[2])
+
+		#Temp Test	
+		if i==1000:
 			break
 		i+=1
 		
 
-
-	test_graph = nx.Graph()
-	test_graph = test_cases()
 
 	#Creation of appropriate data structure for DFS -- Initially mark all nodes
 	graph_nodes = {}
@@ -486,17 +488,14 @@ def main_operation():
 	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
-	final_clusters = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
+	final_clusters_kmeans,final_clusters_agglomerative = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
 
-	#Drawing the Graph
-	colors = {}
-	for node in graph.nodes():
-		index = graph.nodes().index(node)
-		colors[node] = final_clusters[index]
+	#Visualization
+	visualize(graph,final_clusters_kmeans)
+	visualize(graph,final_clusters_agglomerative)
 
-	values = [colors.get(node,0.25) for node in graph.nodes()]
-	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
-	plt.show()
+
+	
 
 	
 
