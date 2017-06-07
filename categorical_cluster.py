@@ -1,5 +1,5 @@
 """ InterMine @ Open Genome Informatics - Similarity Project 
-    -> Extension to K-means algorithm for handling mixed numeric & categorical data type (Possiblities of multiple values in one category)          
+    -> Extension to Hierarchical Agglomerative Clustering algorithm for handling mixed numeric & categorical data type (Possiblities of multiple values in one category)          
     -> The distance metric will be divided into two parts : For Numeric => Euclidean, For categories => Jaccard Coefficient   
     -> Based on http://edu.cs.uni-magdeburg.de/EC/lehre/sommersemester-2013/wissenschaftliches-schreiben-in-der-informatik/publikationen-fuer-studentische-vortraege/kMeansMixedCatNum.pdf """
 
@@ -65,8 +65,8 @@ def distance_mixed(datapoint1,datapoint2,numeric,categorical):
 	return (euclidean_distance + jaccard_distance)
 
 
-""" Function to implement a Clustering Algorithm for mixed type of datasets with categorical variables being allowed to hold multiple categorical values """
-def K_mixed(dataset,n_clusters,numeric,categorical):
+""" Function to implement a Hierarchical Agglomerative Clustering Algorithm for mixed type of datasets with categorical variables being allowed to hold multiple categorical values """
+def hierarchical_mixed(dataset,n_clusters,numeric,categorical):
 	#Based on the value of n_clusters -- Initialization of seeds
 	initial_centroid = random.sample(dataset,n_clusters)
 
@@ -92,7 +92,7 @@ def create_test_data():
 	test = np.random.rand(10,10)
 
 	#Calling the function
-	K_mixed(test,3,10,0)
+	hierarchical_mixed(test,3,10,0)
 
 
 
