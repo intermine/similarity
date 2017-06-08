@@ -76,8 +76,8 @@ def compute_distance_matrix(dataset,numeric):
 
 	#Initializing the matrix with zero
 	distance_matrix = np.zeros(shape = (n,n))
-    
-    #Computation of the distance matrix
+	
+	#Computation of the distance matrix
 	for first_point in dataset:
 		row = dataset.index(first_point)
 		for second_point in dataset:
@@ -114,19 +114,19 @@ def find_distance_min(distance_matrix):
 
 
 """ _Function_ name : hierarchical_mixed 
-       Objective : Unsupervised Hierarchical Clustering Algorithm which is able to cluster data based on mixed types 
-       @Parameters : 
-           dataset : List of feature vectors
-           n_clusters : Number of desired clusters 
-           numeric : Number of numeric features in the feature vector
+	   Objective : Unsupervised Hierarchical Clustering Algorithm which is able to cluster data based on mixed types 
+	   @Parameters : 
+		   dataset : List of feature vectors
+		   n_clusters : Number of desired clusters 
+		   numeric : Number of numeric features in the feature vector
 
-       @Return : Dictionary with feature vector number as keys and their corresponding cluster as values                    """
-       
+	   @Return : Dictionary with feature vector number as keys and their corresponding cluster as values                    """
+
 def hierarchical_mixed(dataset,n_clusters,numeric):
 	#Compute Initial Distance Matrix (Complexity : O(n^2 * d)) , d=> dimension of feature
 	distance_matrix = compute_distance_matrix(dataset,numeric)      
 
-    #Initial Condition : All the points are individual clusters
+	#Initial Condition : All the points are individual clusters
 	number_clusters = len(dataset)
 
 	#Dictionary for cluster assignment
@@ -139,13 +139,41 @@ def hierarchical_mixed(dataset,n_clusters,numeric):
 		clusters[dataset.index(feature_vector)] = cluster_no
 		cluster_no += 1
 
-    #Merging Process
-	while(number_clusters) > n_clusters:
+	#Merging Process
+	while number_clusters > n_clusters:
 		#Find the Minimum Distance and Position of the two points to be merged
+		#print 1
 		distance_matrix, first_point,second_point = find_distance_min(distance_matrix)
-		clusters[second_point] = clusters[first_point]
-		number_clusters -=1
+		print first_point
+		print second_point
+		#print first_point
+		temp_point1 = clusters[first_point]
+		temp_point2 = clusters[second_point]
 
+		#Manipulation of distance matrix for resetting distances b/w points in same cluster as infinity
+		for datapoint1 in clusters:
+			if clusters[datapoint1] == temp_point1:
+				for datapoint2 in clusters:
+					if clusters[datapoint2] == temp_point2:
+						distance_matrix[datapoint1][datapoint2] = float("inf")
+						distance_matrix[datapoint2][datapoint1] = float("inf")
+
+
+
+		for datapoint in clusters:
+			if clusters[datapoint] == temp_point2:
+				#Reasignment
+				clusters[datapoint] = clusters[first_point]
+
+		#Manipulation of the Distance Matrix
+
+
+		#clusters[second_point] = clusters[first_point]
+		number_clusters -=1
+		print "$$"
+
+
+	print clusters
 
 	return clusters
 	
