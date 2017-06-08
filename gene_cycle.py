@@ -23,6 +23,7 @@ from sklearn.cluster import KMeans,AgglomerativeClustering
 from sklearn.metrics import silhouette_samples, silhouette_score
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
+from categorical_cluster import hierarchical_mixed
 
 
 sys.setrecursionlimit(10000)
@@ -194,10 +195,10 @@ def agglomerative_clustering(dataset):
 
 
 """ 
-    Description => _function network_centralization
-        := Computes Features based on connectivity in Graph and information pertaining to Genes(Pathway,Ontology,Protein Domains)
-        := Structural Features based on Centrality Measures
-        := Nodal Features are one-hot encoded [Ontology, Domains, Pathway]       """
+	Description => _function network_centralization
+		:= Computes Features based on connectivity in Graph and information pertaining to Genes(Pathway,Ontology,Protein Domains)
+		:= Structural Features based on Centrality Measures
+		:= Nodal Features are one-hot encoded [Ontology, Domains, Pathway]       """
 
 
 
@@ -227,42 +228,55 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 	#Computing a list of centralities for each node
 	centralities = {}
 	feature_list = []
+	hac_feature_list = []
 
 
 	#Creation of Dictionary with all centrality measures for each node
 	for node in graph.nodes():
 		temp = []
+		hac_extension = []
 		temp.append(centrality_degree[node])
 		temp.append(centrality_closeness[node])
 		temp.append(centrality_betweenness[node])
 		#temp.append(centrality_communicability[node])
 		temp.append(page_rank[node])
 
+		hac_extension.append(centrality_degree[node])
+		hac_extension.append(centrality_closeness[node])
+		hac_extension.append(centrality_betweenness[node])
+		hac_extension.append(page_rank[node])
+
 		#Adding information corresponding to Number of Protein Domains
 		try:
 			number_of_domains =  len(protein_domain[node])
 			temp.append(number_of_domains)
+			hac_extension.append(number_of_domains)
 		except:
 			temp.append(0)
+			hac_extension.append(0)
 
 		#Adding information corresponding to Number of Ontologies
 		try:
 			ontology_terms = len(gene_ontology[node])
 			temp.append(ontology_terms)
+			hac_extension.append(ontology_terms)
 		except:
 			temp.append(0)
+			hac_extension.append(0)
 
 
 		#Adding information corresponding to Number of Pathways
 		try:
 			number_of_pathway = len(gene_pathways[node])
 			temp.append(number_of_pathway)
+			hac_extension.append(number_of_pathway)
 
 		except:
 			temp.append(0)
+			hac_extension.append(0)
 
 		
-		""" Treatment of Gene Ontology Information and Protein Domain Information as categorical variables """
+		""" Categorical Features : Treatment of Gene Ontology Information and Protein Domain Information as categorical variables """
 	
 		#Adding Protein Domain features 
 		try:
@@ -273,10 +287,12 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 				domain_vector[position] = 1
 
 			temp = temp + domain_vector
+			hac_extension.append(domains)
 
 		except:
 			domain_vector = [0] * len(unique_protein_id)
 			temp = temp + domain_vector
+			hac_extension.append([" "])
 
 		#Adding Gene Ontology Features
 		try:
@@ -287,10 +303,12 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 				ontology_vector[position] = 1
 
 			temp = temp + ontology_vector
+			hac_extension.append(ontology)
 
 		except:
 			ontology_vector = [0] * len(unique_ontologies)
 			temp = temp + ontology_vector
+			hac_extension.append([" "])
 
 		#Adding Gene Pathway features
 		try:
@@ -301,13 +319,16 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 				pathway_vector[position] = 1
 
 			temp = temp + pathway_vector
+			hac_extension.append(pathway)
 
 		except:
 			pathway_vector = [0] * len(unique_pathways)
 			temp = temp + pathway_vector
+			hac_extension.append([" "])
 
 
 		feature_list.append(temp)
+		hac_feature_list.append(hac_extension)
 		centralities[node] = temp
 
 	  
@@ -323,14 +344,26 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 	#Dimensionality Reduction to those components with maximum variance
 	matrix = pca.transform(feature_list)
 
+	
 	#Plotting the 3D Data
 	#plot_3D(matrix)
 
 	#Silhouette Analysis & K-means clustering
-	node_labels_kmeans = silhouette_analysis(matrix)
-	node_labels_agglomerative = agglomerative_clustering(feature_list)
+	#node_labels_kmeans = silhouette_analysis(matrix)
+	#node_labels_agglomerative = agglomerative_clustering(feature_list)
+	mixed_clusters = hierarchical_mixed(hac_feature_list,30,7)
 
-	return node_labels_kmeans,node_labels_agglomerative
+	#Creation of Labels for Mixed Agglomerative clustering
+	labels_mixed = []
+	for cluster in mixed_clusters:
+		labels_mixed.append(mixed_clusters[cluster])
+
+	
+
+	#return node_labels_kmeans,node_labels_agglomerative
+	return labels_mixed
+
+
 
 
 #Function to visualize the InterMine Graph after clustering
@@ -374,7 +407,7 @@ def main_operation():
 		graph.add_edge(edge[0],edge[2])
 
 		#Temp Test	
-		if i==1000:
+		if i==200:
 			break
 		i+=1
 		
@@ -488,11 +521,13 @@ def main_operation():
 	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
-	final_clusters_kmeans,final_clusters_agglomerative = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
+	#final_clusters_kmeans,final_clusters_agglomerative = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
+	test = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
 
 	#Visualization
-	visualize(graph,final_clusters_kmeans)
-	visualize(graph,final_clusters_agglomerative)
+	#visualize(graph,final_clusters_kmeans)
+	#visualize(graph,final_clusters_agglomerative)
+	visualize(graph,test)
 
 
 	
