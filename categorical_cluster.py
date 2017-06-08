@@ -1,5 +1,5 @@
 """ InterMine @ Open Genome Informatics - Similarity Project 
-	-> Extension to Hierarchical Agglomerative Clustering algorithm (Single Link / Complete Link) for handling mixed numeric & categorical data type (Possiblities of multiple values in one category)          
+	-> Extension to Hierarchical Agglomerative Clustering algorithm  for handling mixed numeric & categorical data type (Possiblities of multiple values in one category)          
 	-> The distance metric will be divided into two parts : For Numeric => Euclidean, For categories => Jaccard Coefficient   
 	-> Based on http://edu.cs.uni-magdeburg.de/EC/lehre/sommersemester-2013/wissenschaftliches-schreiben-in-der-informatik/publikationen-fuer-studentische-vortraege/kMeansMixedCatNum.pdf """
 
@@ -63,6 +63,7 @@ def distance_mixed(datapoint1,datapoint2,numeric):
 
 	return (euclidean_distance + jaccard_distance)
 
+
 #Function to compute distances b/w every pair of points
 def compute_distance_matrix(dataset,numeric):
 	#Size of the distance matrix
@@ -76,21 +77,67 @@ def compute_distance_matrix(dataset,numeric):
 		row = dataset.index(first_point)
 		for second_point in dataset:
 			column = dataset.index(second_point)
-			distance_matrix[row][column] = distance_mixed(first_point,second_point,numeric)
+			if row == column:
+				#As same elements are in the same cluster itself -- To avoid minimum distance computation
+				distance_matrix[row][column] = 10000
+			else:
+				distance_matrix[row][column] = distance_mixed(first_point,second_point,numeric)
 
 
 	return distance_matrix
 
 	
+#Function to find the minimum distance b/w two datapoints
+def find_distance_min(distance_matrix):
+	#Minimum value in the matrix
+	minimum = np.min(distance_matrix)
+	#Indices of the Minimum Value - List of indices holding minimum value
+	position = np.argwhere(distance_matrix == minimum)
+
+	#Extract the first element of the list
+	position = position[0]
+	#Row
+	row = position[0]
+	#Column
+	column = position[1]
+	#Reset the position in the matrix
+	distance_matrix[row][column] = 10000
+	distance_matrix[column][row] = 10000
+
+	return distance_matrix,row ,column
+
+
 
 
 """ Function to implement a Hierarchical Agglomerative Clustering Algorithm for mixed type of datasets with categorical variables being allowed to hold multiple categorical values """
 def hierarchical_mixed(dataset,n_clusters,numeric):
-	#Compute Distance Matrix (Complexity : O(n^2 * d)) , d=> dimension of feature
-	distance_matrix = compute_distance_matrix(dataset,numeric)
-	
-	#
+	#Compute Initial Distance Matrix (Complexity : O(n^2 * d)) , d=> dimension of feature
+	distance_matrix = compute_distance_matrix(dataset,numeric)      
 
+    #Initial Condition : All the points are individual clusters
+	number_clusters = len(dataset)
+
+	#Dictionary for cluster assignment
+	clusters = {}
+
+	cluster_no = 0 
+
+	#Initialization of Clusters
+	for feature_vector in dataset:
+		clusters[dataset.index(feature_vector)] = cluster_no
+		cluster_no += 1
+
+    #Merging Process
+	while(number_clusters) > n_clusters:
+		#Find the Minimum Distance and Position of the two points to be merged
+		distance_matrix, first_point,second_point = find_distance_min(distance_matrix)
+		clusters[second_point] = clusters[first_point]
+		number_clusters -=1
+
+
+	print clusters
+	
+	
 
 
 def create_test_data():
@@ -98,10 +145,10 @@ def create_test_data():
 	data = []
 
 	#Data will have both categorical as well as numeric part
-	test = [[1,2,3,4,['a','b'],[6]],[3,2,5,1,['a','b','c'],[5]]]
+	test = [[1,2,3,4,['a','b'],[6]],[3,2,5,1,['a','b','c'],[5]],[1,2,3,4,['a','b','c'],[6]],[3,1,5,2,['a','b'],[5]]]
 
 	#Calling the function
-	hierarchical_mixed(test,2,4)
+	hierarchical_mixed(test,3,4)
 	
 
 
