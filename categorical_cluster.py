@@ -113,8 +113,15 @@ def find_distance_min(distance_matrix):
 
 
 
+""" _Function_ name : hierarchical_mixed 
+       Objective : Unsupervised Hierarchical Clustering Algorithm which is able to cluster data based on mixed types 
+       @Parameters : 
+           dataset : List of feature vectors
+           n_clusters : Number of desired clusters 
+           numeric : Number of numeric features in the feature vector
 
-""" Function to implement a Hierarchical Agglomerative Clustering Algorithm for mixed type of datasets with categorical variables being allowed to hold multiple categorical values """
+       @Return : Dictionary with feature vector number as keys and their corresponding cluster as values                    """
+       
 def hierarchical_mixed(dataset,n_clusters,numeric):
 	#Compute Initial Distance Matrix (Complexity : O(n^2 * d)) , d=> dimension of feature
 	distance_matrix = compute_distance_matrix(dataset,numeric)      
@@ -159,7 +166,7 @@ def create_test_data():
 
 
 
-create_test_data()
+#create_test_data()
 
 
 
