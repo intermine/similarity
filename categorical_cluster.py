@@ -89,7 +89,7 @@ def hierarchical_mixed(dataset,n_clusters,numeric):
 	#Compute Distance Matrix (Complexity : O(n^2 * d)) , d=> dimension of feature
 	distance_matrix = compute_distance_matrix(dataset,numeric)
 	
-	print distance_matrix
+	#
 
 
 
