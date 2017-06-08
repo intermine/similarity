@@ -134,17 +134,12 @@ def hierarchical_mixed(dataset,n_clusters,numeric):
 
 	cluster_no = 0 
 
-	#dataset = list(set(dataset))
-
-	print number_clusters
 	#Initialization of Clusters
 	
 	for feature_vector in dataset:
 		#clusters[dataset.index(feature_vector)] = cluster_no
 		clusters[cluster_no] = cluster_no
 		cluster_no += 1
-
-	print clusters
 
 	#Merging Process
 	while number_clusters > n_clusters:
@@ -169,8 +164,6 @@ def hierarchical_mixed(dataset,n_clusters,numeric):
 			if clusters[datapoint] == temp_point2:
 				#Reasignment
 				clusters[datapoint] = clusters[first_point]
-
-		#Manipulation of the Distance Matrix
 
 
 		#clusters[second_point] = clusters[first_point]
