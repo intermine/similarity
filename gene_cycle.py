@@ -406,10 +406,6 @@ def main_operation():
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2])
 
-		#Temp Test	
-		if i==200:
-			break
-		i+=1
 		
 
 
