@@ -15,7 +15,12 @@ import re
 import sys
 import matplotlib as plt 
 import random
+import math
 
+
+#Function to visualize the clustering as a dendogram - To be completed via formation of linkage matrix
+def dendogram():
+	return 1
 
 #Function to compute intersection of two lists
 def intersect(list1,list2):
@@ -79,7 +84,7 @@ def compute_distance_matrix(dataset,numeric):
 			column = dataset.index(second_point)
 			if row == column:
 				#As same elements are in the same cluster itself -- To avoid minimum distance computation
-				distance_matrix[row][column] = 10000
+				distance_matrix[row][column] = float("inf")
 			else:
 				distance_matrix[row][column] = distance_mixed(first_point,second_point,numeric)
 
@@ -101,8 +106,8 @@ def find_distance_min(distance_matrix):
 	#Column
 	column = position[1]
 	#Reset the position in the matrix
-	distance_matrix[row][column] = 10000
-	distance_matrix[column][row] = 10000
+	distance_matrix[row][column] = float("inf")
+	distance_matrix[column][row] = float("inf")
 
 	return distance_matrix,row ,column
 
@@ -135,7 +140,7 @@ def hierarchical_mixed(dataset,n_clusters,numeric):
 		number_clusters -=1
 
 
-	print clusters
+	return clusters
 	
 	
 
@@ -148,7 +153,7 @@ def create_test_data():
 	test = [[1,2,3,4,['a','b'],[6]],[3,2,5,1,['a','b','c'],[5]],[1,2,3,4,['a','b','c'],[6]],[3,1,5,2,['a','b'],[5]]]
 
 	#Calling the function
-	hierarchical_mixed(test,3,4)
+	hierarchical_mixed(test,2,4)
 	
 
 
