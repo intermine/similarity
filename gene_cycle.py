@@ -24,6 +24,9 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 from categorical_cluster import hierarchical_mixed
+from matplotlib import offsetbox
+from sklearn import (manifold, datasets, decomposition, ensemble,
+             discriminant_analysis, random_projection)
 
 
 sys.setrecursionlimit(10000)
@@ -149,6 +152,19 @@ def plot_3D(dataset):
 	plt.show()
 
 
+def plot_2D(dataset):
+	#Elements along X-axis
+	x = [np.take(ele,0) for ele in dataset]
+	#Elements along Y-axis
+	y = [np.take(ele,1) for ele in dataset]
+
+	fig = plt.figure()
+
+	plt.scatter(x,y,label='')
+	plt.show()
+
+
+
 #Function to perform Silhouette Analysis to determine the optimum amount of clusters
 def silhouette_analysis(dataset):
 	#Range of number of clusters
@@ -192,6 +208,18 @@ def agglomerative_clustering(dataset):
 	cluster_labels = agglomerative_cluster.fit_predict(dataset)
 
 	return cluster_labels
+
+
+#Function to call t-SNE for high dimensional data visualization -- Can take care of non-linear relationships
+def t_SNE(dataset):
+	#Initialization
+	tsne = manifold.TSNE(n_components=2, init='pca', random_state=0)
+	#Fit and Transform to get reduced dimension
+	results = tsne.fit_transform(dataset)
+
+	return results
+
+
 
 
 """ 
@@ -335,33 +363,23 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 	#Initializing the numpy array
 	feature_list = np.array(feature_list)
 
-	pca = PCA(n_components = 10)
-
-	pca.fit(feature_list)
-
-	print pca.explained_variance_ratio_
-
-	#Dimensionality Reduction to those components with maximum variance
-	matrix = pca.transform(feature_list)
-
-	
 	#Plotting the 3D Data
 	#plot_3D(matrix)
 
 	#Silhouette Analysis & K-means clustering
 	#node_labels_kmeans = silhouette_analysis(matrix)
 	#node_labels_agglomerative = agglomerative_clustering(feature_list)
-	mixed_clusters = hierarchical_mixed(hac_feature_list,30,7)
+	#mixed_clusters = hierarchical_mixed(hac_feature_list,30,7)
 
 	#Creation of Labels for Mixed Agglomerative clustering
-	labels_mixed = []
-	for cluster in mixed_clusters:
-		labels_mixed.append(mixed_clusters[cluster])
+	#labels_mixed = []
+	#for cluster in mixed_clusters:
+	#	labels_mixed.append(mixed_clusters[cluster])
 
 	
 
 	#return node_labels_kmeans,node_labels_agglomerative
-	return labels_mixed
+	return feature_list
 
 
 
@@ -420,6 +438,9 @@ def main_operation():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2])
+		if i==15000:
+			break
+		i +=1
 
 		
 
@@ -535,12 +556,18 @@ def main_operation():
 	#final_clusters_kmeans,final_clusters_agglomerative = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
 	test = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
 
+	#Get t-SNE results for exploratory data visualization
+	reduced_data = t_SNE(test)
+	plot_2D(reduced_data)
+
 	#Visualization
 	#visualize(graph,final_clusters_kmeans)
 	#visualize(graph,final_clusters_agglomerative)
-	visualize(graph,test)
+	#visualize(graph,test)
 
-	articulations = get_articulation_points(graph)
+	#articulations = get_articulation_points(graph)
+
+
 
 
 
