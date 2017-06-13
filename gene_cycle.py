@@ -107,7 +107,7 @@ def graph_analytics(graph):
 	#For Finding Self-Loops in the Graph
 	loop = graph.data("match (n)-[r]->(n) return n")
 
-	print triangular_cycle
+	return triangular_cycle
 
 
 
@@ -378,6 +378,21 @@ def visualize(graph,final_clusters):
 	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
 	plt.show()
 
+""" Articulation Points : Points in an undirected graph, upon whose removal the number of connected components increase  
+       Biological Significance : Identification of Genes / Proteins whose removal cause a disruption in a Network 
+        Example : There might be a mutation which silences the gene and renders it unable to undergo the previous interactions, which 
+                  will result in all the edges corresponding to that node getting disappeared. If the point is an articulation point,there will be 
+                  a disruption in the network, ultimately hindering certain Biological Pathways                                                     """
+
+
+#Function to get the articulation points from the Network Graph
+def get_articulation_points(graph):
+	#Using NetworkX inbuilt function to obtain points
+	articulations = list(nx.articulation_points(graph))
+
+	return articulations
+
+
 
 """ @Main Function -- Responsible for calling functions which do smaller graph operations """
 
@@ -524,6 +539,10 @@ def main_operation():
 	#visualize(graph,final_clusters_kmeans)
 	#visualize(graph,final_clusters_agglomerative)
 	visualize(graph,test)
+
+	articulations = get_articulation_points(graph)
+
+
 
 
 	
