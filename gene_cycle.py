@@ -369,17 +369,17 @@ def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,uniq
 	#Silhouette Analysis & K-means clustering
 	#node_labels_kmeans = silhouette_analysis(matrix)
 	#node_labels_agglomerative = agglomerative_clustering(feature_list)
-	#mixed_clusters = hierarchical_mixed(hac_feature_list,30,7)
+	mixed_clusters = hierarchical_mixed(hac_feature_list,30,7)
 
 	#Creation of Labels for Mixed Agglomerative clustering
-	#labels_mixed = []
-	#for cluster in mixed_clusters:
-	#	labels_mixed.append(mixed_clusters[cluster])
+	labels_mixed = []
+	for cluster in mixed_clusters:
+		labels_mixed.append(mixed_clusters[cluster])
 
 	
 
 	#return node_labels_kmeans,node_labels_agglomerative
-	return feature_list
+	return labels_mixed,feature_list
 
 
 
@@ -554,7 +554,7 @@ def main_operation():
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
 	#final_clusters_kmeans,final_clusters_agglomerative = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
-	test = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
+	mixed_labels,test = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
 
 	#Get t-SNE results for exploratory data visualization
 	reduced_data = t_SNE(test)
