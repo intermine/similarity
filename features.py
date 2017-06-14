@@ -16,7 +16,51 @@ from matplotlib import pylab
 import sys
 import numpy as np
 
-#Function to extract the tissue in which they are expressed 
+#Function to get the chromosome in which the gene is present
+def chromosome(graph,genes):
+	#For each gene, the chromosome identifier
+	chromosomes = {}
+
+	for gene in genes:
+		chromosome_query = """ MATCH (n:Gene{primaryIdentifier:{gene_id}})-[:LOCATED_ON]->(chr) RETURN chr.primaryIdentifier """
+		gene_chromosome = graph.data(chromosome_query,gene_id=gene)
+		chromosomes[gene] = []
+		for ch in gene_chromosome:
+			chromosomes[gene].append(gene_chromosome['chr.primaryIdentifier'])
+
+	return chromosomes
+	
+
+#Function the extract the pathways associated with each gene
+def pathway(graph,genes):
+	#For each gene , the Pathway Identifier
+	pathways = {}
+
+	for gene in genes:
+		pathway_query = """ MATCH (n:Gene{primaryIdentifier:{gene_id}})<-[:CONTAINS_GENE]-(path) RETURN path.identifier """
+		gene_pathway = graph.data(pathway_query,gene_id=gene)
+		pathways[gene] = []
+		for path in gene_pathway:
+			pathways[gene].append(path['path.identifier'])
+
+	return pathways
+
+#Function to extract the phenotypes associated with each gene
+def phenotype(graph,genes):
+	#For each gene, the Phenotype ID is associated
+	phenotypes = {}
+
+	for gene in genes:
+		phenotype_query = """ MATCH (n:Gene{primaryIdentifier:{gene_id}})-[:HAS_PHENOTYPE]->(ph) RETURN ph.reagentId """
+		gene_phenotype = graph.data(phenotype_query,gene_id=gene)
+		phenotypes[gene] = []
+		for ph in gene_phenotype:
+			phenotypes[gene].append(ph['ph.reagentId'])
+
+	return phenotypes
+
+
+#Function to extract the tissue in which the gene is expressed 
 def tissue(graph,genes):
 	#For each gene, the tissues associated with them
 	tissues = {}
@@ -77,7 +121,16 @@ def create_features():
 	#protein_domains = domains(graph,genes)
 
 	#Diseases Associated with a Gene
-	tissues = tissue(graph,genes)
+	#tissues = tissue(graph,genes)
+
+	#Phenotypes Associated with a Gene
+	#phenotypes = phenotype(graph,genes)
+
+	#Pathways
+	#pathways = pathway(graph,genes)
+
+	#Chromosome
+	chromosomes = chromosome(graph,genes)
 
 
 	
