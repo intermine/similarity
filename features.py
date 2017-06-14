@@ -16,7 +16,24 @@ from matplotlib import pylab
 import sys
 import numpy as np
 
-#Function to extract the Genes regulated by a given Gene
+#Function to get the Entire Gene Regulatory Network for Community Detection
+def get_regulatory_networks(graph,genes):
+	#Extracting Source / Destination
+	query = """ MATCH (n:Gene)-[:REGULATES]->(m:Gene) RETURN n.primaryIdentifier,m.primaryIdentifier """
+	regulations = graph.data(query)
+	
+	#Conversion into correct format
+	graph = []
+	for edge in regulations:
+		temp = []
+		temp.append(edge['n.primaryIdentifier'])
+		temp.append(edge['m.primaryIdentifier'])
+		graph.append(temp)
+
+	return graph
+	
+
+#Function to extract the Genes that regulate a given Gene
 def regulatory_networks_regulated(graph,genes):
 	#For each gene, the regulated genes are extracted
 	regulated_genes = {}
@@ -123,14 +140,7 @@ def domains(graph,genes):
 	return protein_domains
 
 
-
-
-
-#Function to extract information from relationships and generate a feature array for each Gene
-def create_features():
-	#Establishing Connection
-	graph = Graph("http://localhost:7474/db/data/cypher",password="rimo")
-
+def get_genes(graph):
 	#Query to get the Genes along with their length
 	query = "MATCH (n:Gene) RETURN n.primaryIdentifier,n.length LIMIT 1000"
 	result = graph.data(query)
@@ -145,37 +155,70 @@ def create_features():
 		except:
 			lengths.append(0)
 
+	return genes, lengths
+
+
+#Function to extract information from relationships and generate a feature array for each Gene
+def create_features():
+	#Connection to Neo4j
+	graph = Graph("http://localhost:7474/db/data/cypher",password="rimo")
+
+	#Get a list of Genes and their corresponding length
+	genes, lengths = get_genes(graph)
+
 	""" Extraction of Relationships for feature constructions """
 
 	#Protein Domains
-	#protein_domains = domains(graph,genes)
+	protein_domains = domains(graph,genes)
 
 	#Diseases Associated with a Gene
-	#tissues = tissue(graph,genes)
+	tissues = tissue(graph,genes)
 
 	#Phenotypes Associated with a Gene
-	#phenotypes = phenotype(graph,genes)
+	phenotypes = phenotype(graph,genes)
 
 	#Pathways
-	#pathways = pathway(graph,genes)
+	pathways = pathway(graph,genes)
 
 	#Chromosomes
-	#chromosomes = chromosome(graph,genes)
+	chromosomes = chromosome(graph,genes)
 
 	#Regulates
-	#regulates = regulatory_networks_regulates(graph,genes)
+	regulates = regulatory_networks_regulates(graph,genes)
 
 	#Regulated By
-	#regulated_by = regulatory_networks_regulated(graph,genes)
+	regulated_by = regulatory_networks_regulated(graph,genes)
+
+	#Regulatory Graph
+	regulatory_graph = get_regulatory_networks(graph,genes)
+
+	#Feature Creation
+	feature_array = []
+
+	for gene in genes:
+		temp = []
+		#Protein Domains
+		temp.append(protein_domains[gene])
+		#Tissues
+		temp.append(tissues[gene])
+		#Phenotypes
+		temp.append(phenotypes[gene])
+		#Pathways
+		temp.append(pathways[gene])
+		#Chromosomes
+		temp.append(chromosomes[gene])
+		#Regulates
+		temp.append(regulates[gene])
+		#Regulated By
+		temp.append(regulated_by[gene])
+
+		feature_array.append(temp)
+
+
+	return feature_array
 
 
 
 
-	
-
-
-	
-
-
-
-create_features()
+#Function call for Feature Creation
+result = create_features()
