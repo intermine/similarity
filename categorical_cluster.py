@@ -63,7 +63,12 @@ def distance_mixed(datapoint1,datapoint2,numeric):
 		#Union
 		union_feature = union(feature1,feature2)
 
-		jaccard_distance += 1 - len(intersection_feature)/len(union_feature)
+		if len(union_feature) == 0:
+			jaccard_distance += 0
+		else:
+			jaccard_distance += 1 - len(intersection_feature)/len(union_feature)
+
+		
 
 
 	return (euclidean_distance + jaccard_distance)
