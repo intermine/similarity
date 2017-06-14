@@ -16,6 +16,36 @@ from matplotlib import pylab
 import sys
 import numpy as np
 
+#Function to extract the Genes regulated by a given Gene
+def regulatory_networks_regulated(graph,genes):
+	#For each gene, the regulated genes are extracted
+	regulated_genes = {}
+
+	for gene in genes:
+		regulated_query = """ MATCH (n:Gene{primaryIdentifier:{gene_id}})<-[:REGULATES]-(r) RETURN r.primaryIdentifier  """
+		regulates = graph.data(regulated_query,gene_id=gene)
+		regulated_genes[gene] = []
+		for reg in regulates:
+			regulated_genes[gene].append(reg['r.primaryIdentifier'])
+
+	print regulated_genes
+
+
+#Function to extract the Genes regulated by a given Gene
+def regulatory_networks_regulates(graph,genes):
+	#For each gene, the regulated genes are extracted
+	regulated_genes = {}
+
+	for gene in genes:
+		regulated_query = """ MATCH (n:Gene{primaryIdentifier:{gene_id}})-[:REGULATES]->(r) RETURN r.primaryIdentifier  """
+		regulates = graph.data(regulated_query,gene_id=gene)
+		regulated_genes[gene] = []
+		for reg in regulates:
+			regulated_genes[gene].append(reg['r.primaryIdentifier'])
+
+	return regulated_genes
+
+
 #Function to get the chromosome in which the gene is present
 def chromosome(graph,genes):
 	#For each gene, the chromosome identifier
@@ -26,10 +56,10 @@ def chromosome(graph,genes):
 		gene_chromosome = graph.data(chromosome_query,gene_id=gene)
 		chromosomes[gene] = []
 		for ch in gene_chromosome:
-			chromosomes[gene].append(gene_chromosome['chr.primaryIdentifier'])
+			chromosomes[gene].append(ch['chr.primaryIdentifier'])
 
 	return chromosomes
-	
+
 
 #Function the extract the pathways associated with each gene
 def pathway(graph,genes):
@@ -102,7 +132,7 @@ def create_features():
 	graph = Graph("http://localhost:7474/db/data/cypher",password="rimo")
 
 	#Query to get the Genes along with their length
-	query = "MATCH (n:Gene) RETURN n.primaryIdentifier,n.length LIMIT 10"
+	query = "MATCH (n:Gene) RETURN n.primaryIdentifier,n.length LIMIT 1000"
 	result = graph.data(query)
 
 	#Gene List
@@ -129,8 +159,16 @@ def create_features():
 	#Pathways
 	#pathways = pathway(graph,genes)
 
-	#Chromosome
-	chromosomes = chromosome(graph,genes)
+	#Chromosomes
+	#chromosomes = chromosome(graph,genes)
+
+	#Regulates
+	#regulates = regulatory_networks_regulates(graph,genes)
+
+	#Regulated By
+	#regulated_by = regulatory_networks_regulated(graph,genes)
+
+
 
 
 	
