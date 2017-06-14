@@ -45,7 +45,7 @@ def regulatory_networks_regulated(graph,genes):
 		for reg in regulates:
 			regulated_genes[gene].append(reg['r.primaryIdentifier'])
 
-	print regulated_genes
+	return regulated_genes
 
 
 #Function to extract the Genes regulated by a given Gene
@@ -142,7 +142,7 @@ def domains(graph,genes):
 
 def get_genes(graph):
 	#Query to get the Genes along with their length
-	query = "MATCH (n:Gene) RETURN n.primaryIdentifier,n.length LIMIT 1000"
+	query = "MATCH (n:Gene) RETURN n.primaryIdentifier,n.length LIMIT 10"
 	result = graph.data(query)
 
 	#Gene List
