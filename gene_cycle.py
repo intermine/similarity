@@ -2,7 +2,7 @@
 """  InterMine @ Open Genome Informatics : Similarity Project
    -> Application of Cycle Detection Algorithm to understand the dependencies of the Genes 
    -> Application of Graph Analysis methods using Neo4j 
-   -> Application of Graph Centrality Measures to find Similarity Amongst Nodes
+   -> Application of Graph Centrality Measures and node features to find Similarity Amongst Nodes
    -> Treatment of the Data Set as Undirected Graph -- Just Interactions taken into account """
 
 
@@ -19,10 +19,14 @@ from matplotlib import pylab
 import sys
 import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans,AgglomerativeClustering 
 from sklearn.metrics import silhouette_samples, silhouette_score
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
+from categorical_cluster import hierarchical_mixed
+from matplotlib import offsetbox
+from sklearn import (manifold, datasets, decomposition, ensemble,
+             discriminant_analysis, random_projection)
 
 
 sys.setrecursionlimit(10000)
@@ -97,25 +101,6 @@ def cycle_detection(graph):
 			
 
 
-#Test Cases for Testing the Algorithm : Cycle Detection
-def test_cases():
-	#Temporary Test Graph
-	test_graph = nx.Graph() 
-
-	#Test Edges -- Presence of Cycle
-	test_graph.add_edge(1,2)
-	test_graph.add_edge(2,3)
-	test_graph.add_edge(1,3)
-	test_graph.add_edge(3,4)
-	test_graph.add_edge(3,5)
-	test_graph.add_edge(4,5)
-	test_graph.add_edge(7,8)
-	test_graph.add_edge(7,9)
-	test_graph.add_edge(8,9)
-
-
-	return test_graph
-
 #Function to perform functions via Neo4j operations
 def graph_analytics(graph):
 
@@ -125,7 +110,7 @@ def graph_analytics(graph):
 	#For Finding Self-Loops in the Graph
 	loop = graph.data("match (n)-[r]->(n) return n")
 
-	print triangular_cycle
+	return triangular_cycle
 
 
 
@@ -167,6 +152,19 @@ def plot_3D(dataset):
 	plt.show()
 
 
+def plot_2D(dataset):
+	#Elements along X-axis
+	x = [np.take(ele,0) for ele in dataset]
+	#Elements along Y-axis
+	y = [np.take(ele,1) for ele in dataset]
+
+	fig = plt.figure()
+
+	plt.scatter(x,y,label='')
+	plt.show()
+
+
+
 #Function to perform Silhouette Analysis to determine the optimum amount of clusters
 def silhouette_analysis(dataset):
 	#Range of number of clusters
@@ -202,17 +200,38 @@ def silhouette_analysis(dataset):
 
 	return labels
 
+#Function to perform bottom up Agglomerative Clustering using Cosine Similarity Metric as Distance
+def agglomerative_clustering(dataset):
+	#Initialize instance of Agglomerative Clustering
+	agglomerative_cluster = AgglomerativeClustering(n_clusters=2,affinity='cosine',linkage='complete')
+	#Obtain the cluster Labels
+	cluster_labels = agglomerative_cluster.fit_predict(dataset)
+
+	return cluster_labels
+
+
+#Function to call t-SNE for high dimensional data visualization -- Can take care of non-linear relationships
+def t_SNE(dataset):
+	#Initialization
+	tsne = manifold.TSNE(n_components=2, init='pca', random_state=0)
+	#Fit and Transform to get reduced dimension
+	results = tsne.fit_transform(dataset)
+
+	return results
+
+
+
 
 """ 
-    Description => _function network_centralization
-        := Computes Features based on connectivity in Graph and information pertaining to Genes(Pathway,Ontology,Protein Domains)
-        := Structural Features based on Centrality Measures
-        := Nodal Features are one-hot encoded [Ontology, Domains, Pathway]       """
+	Description => _function network_centralization
+		:= Computes Features based on connectivity in Graph and information pertaining to Genes(Pathway,Ontology,Protein Domains)
+		:= Structural Features based on Centrality Measures
+		:= Nodal Features are one-hot encoded [Ontology, Domains, Pathway]       """
 
 
 
 #Function to find out the most important nodes in the network using Connectivity Measures
-def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,unique_ontologies):
+def network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways):
 	#Degree Centrality -- Fraction of Node the node is connected to
 	centrality_degree = nx.degree_centrality(graph)
 
@@ -237,33 +256,55 @@ def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,
 	#Computing a list of centralities for each node
 	centralities = {}
 	feature_list = []
+	hac_feature_list = []
 
 
 	#Creation of Dictionary with all centrality measures for each node
 	for node in graph.nodes():
 		temp = []
+		hac_extension = []
 		temp.append(centrality_degree[node])
 		temp.append(centrality_closeness[node])
 		temp.append(centrality_betweenness[node])
 		#temp.append(centrality_communicability[node])
 		temp.append(page_rank[node])
 
+		hac_extension.append(centrality_degree[node])
+		hac_extension.append(centrality_closeness[node])
+		hac_extension.append(centrality_betweenness[node])
+		hac_extension.append(page_rank[node])
+
 		#Adding information corresponding to Number of Protein Domains
 		try:
 			number_of_domains =  len(protein_domain[node])
 			temp.append(number_of_domains)
+			hac_extension.append(number_of_domains)
 		except:
 			temp.append(0)
+			hac_extension.append(0)
 
 		#Adding information corresponding to Number of Ontologies
 		try:
 			ontology_terms = len(gene_ontology[node])
 			temp.append(ontology_terms)
+			hac_extension.append(ontology_terms)
 		except:
 			temp.append(0)
+			hac_extension.append(0)
+
+
+		#Adding information corresponding to Number of Pathways
+		try:
+			number_of_pathway = len(gene_pathways[node])
+			temp.append(number_of_pathway)
+			hac_extension.append(number_of_pathway)
+
+		except:
+			temp.append(0)
+			hac_extension.append(0)
 
 		
-		""" Treatment of Gene Ontology Information and Protein Domain Information as categorical variables """
+		""" Categorical Features : Treatment of Gene Ontology Information and Protein Domain Information as categorical variables """
 	
 		#Adding Protein Domain features 
 		try:
@@ -274,10 +315,12 @@ def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,
 				domain_vector[position] = 1
 
 			temp = temp + domain_vector
+			hac_extension.append(domains)
 
 		except:
 			domain_vector = [0] * len(unique_protein_id)
 			temp = temp + domain_vector
+			hac_extension.append([" "])
 
 		#Adding Gene Ontology Features
 		try:
@@ -288,34 +331,84 @@ def network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,
 				ontology_vector[position] = 1
 
 			temp = temp + ontology_vector
+			hac_extension.append(ontology)
 
 		except:
 			ontology_vector = [0] * len(unique_ontologies)
 			temp = temp + ontology_vector
+			hac_extension.append([" "])
+
+		#Adding Gene Pathway features
+		try:
+			pathway = gene_pathways[node]
+			pathway_vector = [0] * len(unique_pathways)
+			for path in pathway:
+				position = unique_pathways.index(path)
+				pathway_vector[position] = 1
+
+			temp = temp + pathway_vector
+			hac_extension.append(pathway)
+
+		except:
+			pathway_vector = [0] * len(unique_pathways)
+			temp = temp + pathway_vector
+			hac_extension.append([" "])
 
 
 		feature_list.append(temp)
+		hac_feature_list.append(hac_extension)
 		centralities[node] = temp
 
-  
+	  
 	#Initializing the numpy array
 	feature_list = np.array(feature_list)
-
-
-	pca = PCA(n_components = 3)
-
-	new_list = pca.fit(feature_list)
-
-	#Get the components from transforming the original data
-	matrix = pca.transform(feature_list)
 
 	#Plotting the 3D Data
 	#plot_3D(matrix)
 
-	#Silhouette Analysis
-	node_labels = silhouette_analysis(feature_list)
+	#Silhouette Analysis & K-means clustering
+	#node_labels_kmeans = silhouette_analysis(matrix)
+	#node_labels_agglomerative = agglomerative_clustering(feature_list)
+	mixed_clusters = hierarchical_mixed(hac_feature_list,30,7)
 
-	return node_labels
+	#Creation of Labels for Mixed Agglomerative clustering
+	labels_mixed = []
+	for cluster in mixed_clusters:
+		labels_mixed.append(mixed_clusters[cluster])
+
+	
+
+	#return node_labels_kmeans,node_labels_agglomerative
+	return labels_mixed,feature_list
+
+
+
+
+#Function to visualize the InterMine Graph after clustering
+def visualize(graph,final_clusters):
+	#Drawing the Graph
+	colors = {}
+	for node in graph.nodes():
+		index = graph.nodes().index(node)
+		colors[node] = final_clusters[index]
+
+	values = [colors.get(node,0.25) for node in graph.nodes()]
+	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
+	plt.show()
+
+""" Articulation Points : Points in an undirected graph, upon whose removal the number of connected components increase  
+       Biological Significance : Identification of Genes / Proteins whose removal cause a disruption in a Network 
+        Example : There might be a mutation which silences the gene and renders it unable to undergo the previous interactions, which 
+                  will result in all the edges corresponding to that node getting disappeared. If the point is an articulation point,there will be 
+                  a disruption in the network, ultimately hindering certain Biological Pathways                                                     """
+
+
+#Function to get the articulation points from the Network Graph
+def get_articulation_points(graph):
+	#Using NetworkX inbuilt function to obtain points
+	articulations = list(nx.articulation_points(graph))
+
+	return articulations
 
 
 
@@ -344,12 +437,13 @@ def main_operation():
 		target.append(edge[2])
 
 		#Adding the edge in NetworkX
-		graph.add_edge(edge[0],edge[2])	
+		graph.add_edge(edge[0],edge[2])
+		if i==15000:
+			break
+		i +=1
+
 		
 
-
-	test_graph = nx.Graph()
-	test_graph = test_cases()
 
 	#Creation of appropriate data structure for DFS -- Initially mark all nodes
 	graph_nodes = {}
@@ -370,7 +464,7 @@ def main_operation():
 		edge_list.append(temp)
 
 
-	#Protein Domain information
+	#Integrating Protein Domain information
 	with open('JSON rows/gene_proteindomains.json') as json_data:
 		proteins = json.load(json_data)
 
@@ -394,7 +488,7 @@ def main_operation():
 	unique_protein_id = list(set(protein_id))
 
 
-	#Gene Ontology Information
+	#Integrating Gene Ontology Information
 	with open('JSON rows/gene_goterms.json') as json_data:
 		go_terms = json.load(json_data)
 
@@ -421,6 +515,31 @@ def main_operation():
 	unique_ontologies = list(set(ontology_id))
 
 
+	#Integrating Gene Pathway Information
+	with open('JSON rows/gene_pathways.json') as json_data:
+		pathways = json.load(json_data)
+
+	#Storing essential pathway information
+	pathways = pathways["results"]
+
+	#Storing Gene ID's and their corresponding pathways
+	gene_pathways = {}
+
+	#Unique Pathway ID's
+	pathway_id = []
+
+	#Initialize Dictionary for "Gene":"Pathway ID"
+	for pathway in pathways:
+		gene_pathways[pathway[2]] = []
+		pathway_id.append(pathway[4])
+
+	#Population
+	for pathway in pathways:
+		gene_pathways[pathway[2]].append(pathway[4])
+
+	#Unique Pathway ID's
+	unique_pathways = list(set(pathway_id))
+
 	#cycle_detection(edge_list)
 
 	#save_graph(graph,"intermine.pdf")
@@ -434,22 +553,28 @@ def main_operation():
 	#Calling function for finding path between two nodes
 	#path_node(neo4j_graph,graph.nodes()[0],graph.nodes()[4])
 
-	final_clusters = network_centralization(graph,protein_domain,gene_ontology,unique_protein_id,unique_ontologies)
+	#final_clusters_kmeans,final_clusters_agglomerative = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
+	mixed_labels,test = network_centralization(graph,protein_domain,gene_ontology,gene_pathways,unique_protein_id,unique_ontologies,unique_pathways)
 
-	#Drawing the Graph
-	colors = {}
-	for node in graph.nodes():
-		index = graph.nodes().index(node)
-		colors[node] = final_clusters[index]
+	#Get t-SNE results for exploratory data visualization
+	reduced_data = t_SNE(test)
+	plot_2D(reduced_data)
 
-	values = [colors.get(node,0.25) for node in graph.nodes()]
-	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
-	plt.show()
+	#Visualization
+	#visualize(graph,final_clusters_kmeans)
+	#visualize(graph,final_clusters_agglomerative)
+	#visualize(graph,test)
 
-	#Testing Purpose
-	#data = np.random.rand(50,4)
-	#silhouette_analysis(data)
+	#articulations = get_articulation_points(graph)
 
+
+
+
+
+
+	
+
+	
 
 
 
