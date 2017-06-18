@@ -96,6 +96,7 @@ def compute_scores(graph,old_matrix,current_matrix,decay,incoming_a,incoming_b,i
 	score = (decay / (I_a * I_b)) * total_score
 
 	current_matrix[i][j] = score
+	current_matrix[j][i] = score
 
 	return current_matrix
 
@@ -166,7 +167,7 @@ def main():
 	similarity_matrix = compute_sim_rank(regulatory_graph)
 
 	#Print
-	#print similarity_matrix
+	print similarity_matrix
 
 	
 
