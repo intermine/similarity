@@ -165,6 +165,9 @@ def main():
 	#Computing the SimRank Matrix
 	similarity_matrix = compute_sim_rank(regulatory_graph)
 
+	#Print
+	#print similarity_matrix
+
 	
 
 
