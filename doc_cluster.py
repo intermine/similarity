@@ -98,8 +98,11 @@ def compute_tfidf(gene_documents):
 	for document in gene_documents:
 		temp_vector = []
 		for term in idf.keys():
+			#Tf
 			term_frequency = compute_term_frequency(document,term)
+			#Idf
 			inverse_document_frequency = idf[term]
+			#Tf-Idf Score
 			tf_idf_score = term_frequency * inverse_document_frequency
 			temp_vector.append(tf_idf_score)
 
