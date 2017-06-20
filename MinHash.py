@@ -26,7 +26,7 @@ import random
 
 
 
-""" Algorithm Description : MinHash  -- This is a method of compressing the information 
+""" Algorithm Description : MinHash  -- This is a method of compressing the information and an approximation scheme towards Jaccard coefficient computation
        -> Generate Random Hash functions of the form :  (a * x  +  b ) mod c , where  a,b < max(x) and c is the prime number just greater than x
        -> x can take maximum of 2**32 - 1 as in the earlier step for Shingle ID's we have used crc32  
        -> Choose each hash function and generate hash values for each Shingle ID -- then choose the minimum value as signature                    
@@ -81,11 +81,11 @@ def generate_signatures(shingles,components):
 		for i in range(0,components):
 			#Selection for coefficient A
 			a = hash_a[i]
-			#Choose for coefficient B
+			#Selection for coefficient B
 			b = hash_b[i]
-			#Complete Hash values
+			#Complete List of Hash Values
 			hash_values = map((lambda g: (a*g + b)%c),gene)
-			#Choose minimum hash value
+			#Choose Minimum Hash Value
 			temp.append(min(hash_values))
 
 		minhash_signatures.append(temp)
@@ -93,11 +93,26 @@ def generate_signatures(shingles,components):
 
 	return minhash_signatures
 
-#Function to construct a Similarity Matrix for the 
-#def similarity_matrix():
+
+""" The following method taken : N * (N-1) / 2 time, which is not good for scaling --  Have to be replaced with LSH       """
+#Function to construct a Similarity Matrix - By comparing all pairs - This will be changed by Locality Sensitive Hashing for faster processing
+def get_similarity_matrix(signatures,n,components):
+	#Generate Empty Matrix
+	similarity_matrix = np.zeros((n,n))
+
+	#Loop through and get common signature values
+	for i in range(0,n):
+		for j in range(i+1,n):
+			#Similarity Metric
+			similarity_score = len(set(signatures[i]).intersection(set(signatures[j]))) / len(set(signatures[i]).union(set(signatures[j])))
+			similarity_matrix[i][j] = similarity_score
+
+
+	return similarity_matrix
+
 
 #Main Function for calls
-def main():
+def main(components):
 	#Connection to Neo4j
 	graph = Graph("http://localhost:7474/db/data/cypher",password="rimo")
 
@@ -114,14 +129,18 @@ def main():
 	shingles = generate_shingle_id(sets)
 
 	#Get signature based on the Shingle ID's
-	signatures = generate_signatures(shingles,20)
+	signatures = generate_signatures(shingles,components)
+
+	similarity_matrix = get_similarity_matrix(signatures,len(genes),components)
+
+	return similarity_matrix
 
 	
 
 
 
 
-
-main()
+#Compute Similarity Matrix
+matrix = main(20)
 
 
