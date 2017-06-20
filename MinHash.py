@@ -26,7 +26,7 @@ import random
 
 
 
-""" Algorithm Description : MinHash 
+""" Algorithm Description : MinHash  -- This is a method of compressing the information 
        -> Generate Random Hash functions of the form :  (a * x  +  b ) mod c , where  a,b < max(x) and c is the prime number just greater than x
        -> x can take maximum of 2**32 - 1 as in the earlier step for Shingle ID's we have used crc32  
        -> Choose each hash function and generate hash values for each Shingle ID -- then choose the minimum value as signature                    
@@ -93,7 +93,8 @@ def generate_signatures(shingles,components):
 
 	return minhash_signatures
 
-
+#Function to construct a Similarity Matrix for the 
+#def similarity_matrix():
 
 #Main Function for calls
 def main():
@@ -113,9 +114,9 @@ def main():
 	shingles = generate_shingle_id(sets)
 
 	#Get signature based on the Shingle ID's
-	signatures = generate_signatures(shingles,10)
+	signatures = generate_signatures(shingles,20)
 
-	print signatures
+	
 
 
 
