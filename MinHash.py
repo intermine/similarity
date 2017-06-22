@@ -122,6 +122,27 @@ def LSH(b,r,signature_matrix,components):
 	return lsh_matrix
 
 
+#Function to churn out the candidate genes which needs to be compared
+def candidate_genes(lsh_matrix):
+	#Transpose the Matrix 
+	transposed_lsh_matrix = np.array(lsh_matrix).transpose()
+
+	#List storing the Candidate Genes from each Band
+	candidates = [] 
+
+	#Extracting the candidate genes from each band
+	for band in transposed_lsh_matrix:
+		#Extract the unique hash values from the band
+		hash_list = list(set(band))
+
+		#Candidates for the particular band
+		band_candidate = [np.where(band == value) for value in hash_list]
+        
+        #Add to main candidate list
+		candidates.append()
+
+
+	return candidates
 
 
 """ The following method taken : N * (N-1) / 2 time, which is not good for scaling --  Have to be replaced with LSH       """
@@ -168,6 +189,8 @@ def main(components):
 	b = 5 
 	r = 4
 	lsh_matrix = LSH(b,r,signatures,components)
+
+	candidate_genes = candidate_genes(lsh_matrix)
 
 
 
