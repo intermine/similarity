@@ -27,18 +27,18 @@ import random
 
 
 """ Algorithm Description : MinHash  -- This is a method of compressing the information and an approximation scheme towards Jaccard coefficient computation
-       -> Generate Random Hash functions of the form :  (a * x  +  b ) mod c , where  a,b < max(x) and c is the prime number just greater than x
-       -> x can take maximum of 2**32 - 1 as in the earlier step for Shingle ID's we have used crc32  
-       -> Choose each hash function and generate hash values for each Shingle ID -- then choose the minimum value as signature                    
-       -> In this way, if there are 'n' Hash Functions there will be n components of a signature                                                """
+	   -> Generate Random Hash functions of the form :  (a * x  +  b ) mod c , where  a,b < max(x) and c is the prime number just greater than x
+	   -> x can take maximum of 2**32 - 1 as in the earlier step for Shingle ID's we have used crc32  
+	   -> Choose each hash function and generate hash values for each Shingle ID -- then choose the minimum value as signature                    
+	   -> In this way, if there are 'n' Hash Functions there will be n components of a signature                                                """
 
 
 #Function to Map the Shingles to an ID - using CRC32 Hash
 def generate_shingle_id(sets):
 	#List containing Shingle ID's
 	shingle_ids = []
-    
-    #Finding the shingle ID's for each set of property in the Gene Set
+	
+	#Finding the shingle ID's for each set of property in the Gene Set
 	for gene in sets:
 		ids = map((lambda g: binascii.crc32(g) & 0xffffffff),gene)
 		shingle_ids.append(ids)
@@ -72,8 +72,8 @@ def generate_signatures(shingles,components):
 	#Generate Random Hash Functions
 	hash_a = generate_random_hash(max_shingle_id,components)
 	hash_b = generate_random_hash(max_shingle_id,components)
-    
-    #Storing the Min Hash Signatures in a list
+	
+	#Storing the Min Hash Signatures in a list
 	minhash_signatures = []
 
 	for gene in shingles:
@@ -92,6 +92,36 @@ def generate_signatures(shingles,components):
 
 
 	return minhash_signatures
+
+
+""" Application of LSH on the MinHash Signatures to identify similar patterns in the data set 
+	Parameters =>   b -> Number of Bands,   r -> Number of Rows in a band,  signature_matrix -> Contains signature for each gene
+	                components -> Number of elements in the Gene Signature                                                         """
+
+#Perform LSH
+def LSH(b,r,signature_matrix,components):
+	# b * r = number of components in a signature
+	
+	#Initializing LSH matrix - to be filled after hashing bands
+	lsh_matrix = []
+    
+    #Calculating Hash values for each band -> Total Number of hash values for a gene = Number of bands
+	for gene in signature_matrix:
+		#For storing hash value of each band
+		temp = []
+		for band in range(0,b):
+			#Extracting required number of elements for a band
+			temp = gene[band*r:band*r + r]
+			#Obtaining a Hash Value
+			hash_value = hash(tuple(temp))
+			#Append to temporary list
+			temp.append(hash_value)
+
+		lsh_matrix.append(temp)
+
+	return lsh_matrix
+
+
 
 
 """ The following method taken : N * (N-1) / 2 time, which is not good for scaling --  Have to be replaced with LSH       """
@@ -131,9 +161,16 @@ def main(components):
 	#Get signature based on the Shingle ID's
 	signatures = generate_signatures(shingles,components)
 
-	similarity_matrix = get_similarity_matrix(signatures,len(genes),components)
+	#similarity_matrix = get_similarity_matrix(signatures,len(genes),components)
 
-	return similarity_matrix
+	#return similarity_matrix
+	
+	b = 5 
+	r = 4
+	lsh_matrix = LSH(b,r,signatures,components)
+
+
+
 
 	
 
