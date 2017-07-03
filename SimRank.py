@@ -200,9 +200,12 @@ def main():
 	#Get Top Picks from the Similarity Matrix
 	similar_genes = get_top_matches(similarity_matrix,nodes)
 
+	#Conversion into JSON
+	similar_json = json.dumps(similar_genes, ensure_ascii = False)
 
-	#Print
-	print len(similar_genes)
+	#Storing the top similar genes in a JSON file
+	with open('similar_regulatory.json','w') as outfile:
+		json.dump(similar_json,outfile)
 
 	
 
