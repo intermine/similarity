@@ -152,10 +152,41 @@ def compute_sim_rank(graph):
 	#Final Similarity Matrix
 	final_matrix = calculate_similarity_scores(di_graph,similarity_matrix,5,0.5)
 
-	return final_matrix
-	
+	return nodes,final_matrix
 
 
+#Function to get the top matching similar genes for each gene -- This function returns the top 3 Similar Genes for each Gene
+def get_top_matches(similarity_matrix,nodes):
+
+	#Dictionary for storing similar genes corresponding to each gene
+	similar_dict = {}
+
+	#Index Counter
+	index = 0
+
+	for similarities in similarity_matrix:
+		#Initialize the particular Gene
+		similar_dict[nodes[index]] = []
+
+		#Find the Maximum value
+		max_similarity_score = max(similarities)
+        
+        #Find the corresponding Genes only if the similarity score is not zero (Zero means no similar genes exist)
+		if max_similarity_score != 0 :
+			#Extract the indices
+			indexes = np.argwhere(similarities == max_similarity_score)
+
+			#Obtain the Gene ID's of the Similar Nodes
+			gene_ids = map((lambda x: nodes[x[0]]),indexes)
+
+			#Push into main dictionary
+			similar_dict[nodes[index]] = gene_ids
+
+		index += 1
+
+
+
+	return similar_dict
 
 
 
@@ -164,10 +195,14 @@ def main():
 	regulatory_graph = get_regulatory_network()
 	
 	#Computing the SimRank Matrix
-	similarity_matrix = compute_sim_rank(regulatory_graph)
+	nodes, similarity_matrix = compute_sim_rank(regulatory_graph)
+
+	#Get Top Picks from the Similarity Matrix
+	similar_genes = get_top_matches(similarity_matrix,nodes)
+
 
 	#Print
-	print similarity_matrix
+	print len(similar_genes)
 
 	
 
