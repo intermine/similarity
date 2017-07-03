@@ -2,8 +2,7 @@
   InterMine @ Open Genome Informatics : Similarity Project
    -> Clustering the sets by treating each set as a document and clustering them using Document Clustering Methods    
    -> This is a relatively simple model considering no requirement of taking sequence taking into account,
-      however the texts are relatively short in nature where tf-idf does not work the best, as for most of the cases : tf*idf ~ idf 
-   -> This model will be an ensemble of the tf-idf model and another Deep Learning based CNN Model which clusters short texts        
+      however the texts are relatively short in nature where tf-idf does not work the best, as for most of the cases : tf*idf ~ idf        
    -> The problem is equivalent to Short Text Clustering                                                                                """
 
 
@@ -127,6 +126,26 @@ def create_gene_documents(feature):
 
 	return document_set	
 
+#Function to obtain the Gene Clusters wrt ID's
+def get_gene_clusters(cluster_labels,genes):
+	#Get Unique Labels
+	unique_labels = list(set(cluster_labels))
+
+	clusters = []
+
+	for cluster_id in unique_labels:
+		#Indexes for each cluster
+		gene_indexes = np.argwhere(cluster_labels == cluster_id)
+
+		#Extraction from list structure
+		gene_clusters = map((lambda x: genes[x[0]]),gene_indexes)
+
+		#Add to main cluster
+		clusters.append(gene_clusters)
+
+
+	return clusters
+
 
 
 #Main Function for calls
@@ -148,6 +167,13 @@ def main_operation():
 
 	#Obtaining the cluster labels
 	cluster_labels = compute_clusters(tfidf_vectors)
+
+	#Obtain clusters in form of Gene ID's
+	gene_clusters = get_gene_clusters(cluster_labels,genes)
+
+	print gene_clusters
+
+
 
 
 
