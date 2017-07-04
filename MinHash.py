@@ -40,8 +40,10 @@ def generate_shingle_id(sets):
 	
 	#Finding the shingle ID's for each set of property in the Gene Set
 	for gene in sets:
-		ids = map((lambda g: binascii.crc32(g) & 0xffffffff),gene)
-		shingle_ids.append(ids)
+		if gene: #Checking if information pertaining to the Gene is present
+			gene_modified = [x for x in gene if x is not None]
+			ids = map((lambda g: binascii.crc32(g) & 0xffffffff),gene_modified)
+			shingle_ids.append(ids)
 
 
 	return shingle_ids
@@ -139,13 +141,13 @@ def candidate_genes(lsh_matrix):
 		band_candidate = [np.where(band == value) for value in hash_list]
         
         #Add to main candidate list
-		candidates.append()
+		candidates.append(band_candidate)
 
 
 	return candidates
 
 
-""" The following method taken : N * (N-1) / 2 time, which is not good for scaling --  Have to be replaced with LSH       """
+""" The following method taken : N * (N-1) / 2 time, which is not good for scaling  -- Replaced with LSH """
 #Function to construct a Similarity Matrix - By comparing all pairs - This will be changed by Locality Sensitive Hashing for faster processing
 def get_similarity_matrix(signatures,n,components):
 	#Generate Empty Matrix
@@ -160,6 +162,16 @@ def get_similarity_matrix(signatures,n,components):
 
 
 	return similarity_matrix
+
+#Function to get the Similar Genes using information about candidate genes
+def get_similar_genes(candidate_gene,genes):
+	#Extract Candidate Genes from the Band Hash Values where repetition is observed
+	#for band in candidate_gene:
+		#print len(band[0][0])
+		#print band[0][0]
+	return 1
+
+
 
 
 #Main Function for calls
@@ -186,11 +198,17 @@ def main(components):
 
 	#return similarity_matrix
 	
-	b = 5 
+	b = 10 
 	r = 4
-	lsh_matrix = LSH(b,r,signatures,components)
 
-	candidate_genes = candidate_genes(lsh_matrix)
+	#Obtain the matrix formed due to Locality Sensitive Hashing
+	lsh_matrix = LSH(b,r,signatures,components)
+    
+    #Candidate Genes for Close Inspection
+	candidate_gene = candidate_genes(lsh_matrix)
+
+	#Use the information regarding candidate genes to obtain similarity scores
+	final_similarity = get_similar_genes(candidate_gene, genes)
 
 
 
@@ -201,6 +219,6 @@ def main(components):
 
 
 #Compute Similarity Matrix
-matrix = main(20)
+matrix = main(40)
 
 
