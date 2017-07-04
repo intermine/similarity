@@ -152,7 +152,7 @@ def domains(graph,genes):
 
 def get_genes(graph):
 	#Query to get the Genes along with their length
-	query = "MATCH (n:Gene) RETURN n.primaryIdentifier,n.length LIMIT 30"
+	query = "MATCH (n:Gene) RETURN n.primaryIdentifier,n.length LIMIT 200"
 	result = graph.data(query)
 
 	#Gene List
