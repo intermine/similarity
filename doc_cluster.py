@@ -47,14 +47,46 @@ def compute_clusters(features):
 	#Normalize the Transformed Feature into Unit Norm so that K-means behave as spherical K-means
 	normalized_features = normalize(transformed_features)
 
-	#Applying K-means Algorithm - Initialization
-	k_means = KMeans(n_clusters=2, init='k-means++', n_init=10)
+	#Range of number of clusters
+	cluster_range = 37
+
+	#Silhouette scores
+	silhouettes = []
+
+	#Silhouette Analysis
+	for cluster_number in range(2,cluster_range):
+
+		#Applying K-means Algorithm - Initialization
+		k_means = KMeans(n_clusters=cluster_number, init='k-means++', n_init=10)
+
+		#Fit and get index of each cluster
+		cluster_labels = k_means.fit_predict(normalized_features)
+
+		#Average of all the scores of the samples
+		silhouette_average = silhouette_score(normalized_features,cluster_labels)
+
+		#print silhouette_average
+
+		#Add to main list
+		silhouettes.append(silhouette_average)
+
+	#Obtain max score
+	score_max = max(silhouettes)
+
+	#Find index for deciding the number of clusters
+	position = silhouettes.index(score_max)
+
+	#Final Number of clusters
+	number_of_clusters = position + 2
+
+	#Now apply K-means with the number of clusters determined by Silhouette Analysis
+	k_means_final = KMeans(n_clusters=number_of_clusters,init='k-means++',n_init=10)
 
 	#Fitting the Feature Set into Mini Batch K-means
-	k_means.fit(normalized_features)
+	k_means_final.fit(normalized_features)
 
 	#Cluster Index
-	final_index = k_means.labels_
+	final_index = k_means_final.labels_
 
 	return final_index
 
@@ -172,12 +204,6 @@ def main_operation():
 	gene_clusters = get_gene_clusters(cluster_labels,genes)
 
 	print gene_clusters
-
-
-
-
-
-
 
 
 
