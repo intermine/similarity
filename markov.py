@@ -1,6 +1,6 @@
-"""  Markov Clustering Algorithm for Graphs  """
-
-
+"""  InterMine @ Open Genome Informatics 
+      -> Implementation of Markov Clustering to obtain the clusters in Gene Interaction Network              """
+      
 
 #Libraries
 from __future__ import division
@@ -23,7 +23,16 @@ from matplotlib import offsetbox
 from sklearn import (manifold, datasets, decomposition, ensemble,
              discriminant_analysis, random_projection)
 
-from features import create_features, get_genes
+""" Algorithm Steps : Markov Clustering
+
+     1. Find Adjacency Matrix
+     2. Add Self Self-Loops
+     3. Normalize the Matrix
+     4. Do matrix multiplication according to the given power value
+     5. Do the process of inflation for each column
+     6. Repeat Steps 4 and 5 until convergence 
+     7. Inspect the Matrix to get clusters                                         """
+
 
 #Function to find holes in the feature set for the genes
 def MCL(graph,inflation,e):
@@ -56,15 +65,16 @@ def MCL(graph,inflation,e):
 		#Create Empty Numpy array
 		new_array = np.zeros(shape=(len(adjacency),len(adjacency)))
 
+		#Inflate each column with the given power
 		for i in range(0,len(new_array)):
 			new_array[i] = np.power(normalized_matrix[i],inflation)
 
-
+        #Retranspose to get back the original orientation
 		normalized_matrix = new_array.transpose()
 
 
-	return normalized_matrix	
-	
+
+	return normalized_matrix		
 
 
 
@@ -91,13 +101,7 @@ def main():
 	e = 2
 
 	#Perform MCL Algorithm
-	MCL(graph,inflation,e)
-
-
-
-
-
-	
+	MCL_matrix = MCL(graph,inflation,e)	
 
 
 
