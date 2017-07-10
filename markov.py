@@ -1,4 +1,4 @@
-"""  MCL Algorithm   """
+"""  Markov Clustering Algorithm for Graphs  """
 
 
 
@@ -31,12 +31,39 @@ def MCL(graph,inflation,e):
 	nodes = graph.nodes()
 
 	#Convert into adjacency matrix
-	adjacency = nx.to_numpy_matrix(graph)
+	adjacency = nx.adjacency_matrix(graph)
+
+	#Addition of Self-Loops
 
 	#Transpose the matrix
-	adjacency_matrix = adjacency.transpose()
+	adjacency_mat = adjacency.transpose()
 
-	print adjacency_matrix
+	#Conversion into dense matrix
+	adjacency = adjacency_mat.todense()
+
+	#Normalization of Matrix
+	normalized_matrix = adjacency / adjacency.sum(axis=0)
+
+	#Iterate for a duration for convergence
+	for j in range(0,10):
+		#Matrix multiplication
+		for i in range(0,e-1):
+			normalized_matrix = np.matmul(normalized_matrix,normalized_matrix)
+
+		#Inflation of the columns
+		temp_matrix = normalized_matrix.transpose()
+
+		#Create Empty Numpy array
+		new_array = np.zeros(shape=(len(adjacency),len(adjacency)))
+
+		for i in range(0,len(new_array)):
+			new_array[i] = np.power(normalized_matrix[i],inflation)
+
+
+		normalized_matrix = new_array.transpose()
+
+
+	return normalized_matrix	
 	
 
 
@@ -65,6 +92,8 @@ def main():
 
 	#Perform MCL Algorithm
 	MCL(graph,inflation,e)
+
+
 
 
 
