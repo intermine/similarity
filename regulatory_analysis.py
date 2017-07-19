@@ -89,15 +89,31 @@ def visualization(features):
 #Function to create new features from trained network
 def create_new_features(feature_array,weights,biases):
 	#New feature list
-	features = np.empty([len(feature_array),2])
+	features = []
 
 	#Append to empty Numpy Array
 	for feature in feature_array:
-		np.append(features,np.add(np.matmul(feature,weights),biases))
+		features.append(np.add(np.matmul(feature,weights),biases).tolist())
+     
+	return np.array(features)
 
+#Function to cluster the features
+def cluster(features):
+	#Range of number of clusters
+	cluster_range = [2,3,4,5,6]
 
-	visualization(features)
+	#Silhouette Scores
+	silhouette_scores = []
 
+	for cluster in cluster_range:
+		#Initialize clusterer with number of clusters as cluster
+		clusterer = KMeans(n_clusters=cluster,random_state=10)
+		#Fit the dataset and get the index of each cluster
+		cluster_labels = clusterer.fit_predict(features)
+		#Average of the scores of all samples(points)
+		silhouette_avg = silhouette_score(features, cluster_labels)
+		silhouette_scores.append(silhouette_avg)
+		print silhouette_avg
 	
 
 #Function to create features for nodes in the Regulatory Graph
@@ -112,7 +128,7 @@ def regulatory_analysis():
 	regulatory_network = get_regulatory_networks(graph,genes)
 
 	#Initializing instance for Directed NetworkX Graph
-	g = nx.DiGraph()
+	g = nx.DiGraph() 
 
 	#Conversion into list of tuples
 	edge_list = map((lambda x : (x[0],x[1])),regulatory_network)
@@ -139,10 +155,11 @@ def regulatory_analysis():
 	#Create 2D features using trained weights and biases
 	new_features = create_new_features(feature_array,weights,biases)
 
+	#Clustering
+	cluster(new_features)	
 
-
-
-	
+	#Visualization
+	visualization(new_features)
 
 
 
