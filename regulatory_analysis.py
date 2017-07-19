@@ -73,6 +73,31 @@ def create_features(graph):
 	return feature_dictionary
 
 
+#Function to create visualization
+def visualization(features):
+	#Elements along X-axis
+	x = [np.take(ele,0) for ele in features]
+
+	#Elements along Y-axis
+	y = [np.take(ele,1) for ele in features]
+
+	fig = plt.figure()
+
+	plt.scatter(x,y,label='')
+	plt.show()
+
+#Function to create new features from trained network
+def create_new_features(feature_array,weights,biases):
+	#New feature list
+	features = np.empty([len(feature_array),2])
+
+	#Append to empty Numpy Array
+	for feature in feature_array:
+		np.append(features,np.add(np.matmul(feature,weights),biases))
+
+
+	visualization(features)
+
 	
 
 #Function to create features for nodes in the Regulatory Graph
@@ -108,10 +133,11 @@ def regulatory_analysis():
 	#Conversion into numpy array
 	feature_array = np.array(feature_list)
 
+	#Autoencoder for Dimensionality Reduction
 	weights, biases = AutoEncoder(feature_array)
 
-	print weights
-	print biases
+	#Create 2D features using trained weights and biases
+	new_features = create_new_features(feature_array,weights,biases)
 
 
 
