@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np 
 import math
 
+
 #Function to calculate loss
 def calculate_loss(predicted,actual):
 	#Cross Entropy error
@@ -14,14 +15,14 @@ def calculate_loss(predicted,actual):
 
 
 #AutoEncoder Definition
-def AutoEncoder():
+def AutoEncoder(input):
 	#Input Sample Random 
-	input = np.random.rand(1000,20)
+	#input = np.random.rand(1000,20)
 
-    #Conversion into float32 for homogeneous matrix multiplication
+	#Conversion into float32 for homogeneous matrix multiplication
 	input = input.astype(np.float32,copy=False)
-    
-    #Adding noise to the Sample -- Perturbed Input
+
+	#Adding noise to the Sample -- Perturbed Input
 	noisy_input = input + 0.2 * np.random.random_sample((input.shape))
 
 	#Scale your input data to [0,1]
@@ -69,8 +70,8 @@ def AutoEncoder():
 
 	#Placeholder for output
 	actual = tf.placeholder(tf.float32,[None,n_input])
-    
-    #Find the loss value
+
+	#Find the loss value
 	loss = calculate_loss(predicted,actual)
 
 	#Mean sq loss
@@ -87,7 +88,7 @@ def AutoEncoder():
 		sess.run(init)
 
 		#Number of Rounds
-		n_rounds = 100000
+		n_rounds = 1000
 
 		#Selection of batch size of 50
 		batch_size = min(n_samples,100)
@@ -107,7 +108,12 @@ def AutoEncoder():
 
 			if i%50 == 0:
 				print sess.run(loss,feed_dict={x:input_x,actual:output_y})
-			
+
+		weights =  sess.run(W_hidden)
+		biases = sess.run(b_hidden)
+
+
+	return weights, biases	
 
 
 		
@@ -116,7 +122,7 @@ def AutoEncoder():
 
 
 
-AutoEncoder()
+#AutoEncoder(np.random.rand(1000,20))
 
 
 
