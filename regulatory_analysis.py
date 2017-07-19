@@ -23,9 +23,29 @@ from sklearn import (manifold, datasets, decomposition, ensemble,
 from features import get_regulatory_networks, get_genes
 
 #Function to create centrality features for the Nodes in the Regulatory Network
-def 
+def create_features(graph):
+	#Nodes in the regulatory network
+	genes = graph.nodes()
 
+	#In Degree Centrality
+	in_degree = nx.in_degree_centrality(graph)
 
+	#Out Degree Centrality
+	out_degree = nx.out_degree_centrality(graph)
+
+	#Closeness Centrality
+	closeness = nx.closeness_centrality(graph)
+
+	#Current_flow centrality -- Based on resistance
+	current_flow = nx.current_flow_closeness_centrality(graph)
+
+	#Betweeness centrality -- Fraction of all-pairs shortest path that passes through a given network
+	node_betweenness = nx.betweenness_centrality(graph)
+
+	#Edge Betweenness - To find important edges in the network
+	edge_betweenness = nx.edge_betweenness_centrality(graph)
+
+	print edge_betweenness
 
 #Function to create features for nodes in the Regulatory Graph
 def regulatory_analysis():
@@ -49,6 +69,8 @@ def regulatory_analysis():
 
 	#Creation of features for the nodes
 	node_features = create_features(g)
+
+
 	
 
 
