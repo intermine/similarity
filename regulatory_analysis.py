@@ -21,6 +21,7 @@ from matplotlib import offsetbox
 from sklearn import (manifold, datasets, decomposition, ensemble,
              discriminant_analysis, random_projection)
 from features import get_regulatory_networks, get_genes
+from tensor import AutoEncoder
 
 #Function to create centrality features for the Nodes in the Regulatory Network
 def create_features(graph):
@@ -96,6 +97,23 @@ def regulatory_analysis():
 
 	#Creation of features for the nodes
 	node_features = create_features(g)
+
+	#Feature List
+	feature_list = []
+
+	for gene in node_features:
+		feature_list.append(node_features[gene])
+
+
+	#Conversion into numpy array
+	feature_array = np.array(feature_list)
+
+	weights, biases = AutoEncoder(feature_array)
+
+	print weights
+	print biases
+
+
 
 
 	
