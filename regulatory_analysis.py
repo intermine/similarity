@@ -36,16 +36,43 @@ def create_features(graph):
 	#Closeness Centrality
 	closeness = nx.closeness_centrality(graph)
 
-	#Current_flow centrality -- Based on resistance
-	current_flow = nx.current_flow_closeness_centrality(graph)
-
 	#Betweeness centrality -- Fraction of all-pairs shortest path that passes through a given network
 	node_betweenness = nx.betweenness_centrality(graph)
 
 	#Edge Betweenness - To find important edges in the network
 	edge_betweenness = nx.edge_betweenness_centrality(graph)
 
-	print edge_betweenness
+	#Page Rank for node ranking values
+	page_rank = nx.pagerank(graph,alpha=0.8)
+
+	#Dictionary for storing features for each gene
+	feature_dictionary = {}
+
+	#Populate with Genes and Features
+	for gene in genes:
+		#Initialization
+		feature_dictionary[gene] = []
+
+		#In Degree
+		feature_dictionary[gene].append(in_degree[gene])
+
+		#Out Degree
+		feature_dictionary[gene].append(out_degree[gene])
+
+		#Closeness
+		feature_dictionary[gene].append(closeness[gene])
+
+		#Node Betweenness
+		feature_dictionary[gene].append(node_betweenness[gene])
+
+		#Page Rank
+		feature_dictionary[gene].append(page_rank[gene])
+
+
+	return feature_dictionary
+
+
+	
 
 #Function to create features for nodes in the Regulatory Graph
 def regulatory_analysis():
