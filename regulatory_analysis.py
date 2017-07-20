@@ -114,6 +114,15 @@ def cluster(features):
 		silhouette_avg = silhouette_score(features, cluster_labels)
 		silhouette_scores.append(silhouette_avg)
 		print silhouette_avg
+
+	#Average Silhouette Score to be set as threshold
+	average_silhouette_score = sum(silhouette_scores) / float(len(silhouette_scores))
+
+	#Extraction of indices for cluster values above silhouette threshold
+	cluster_above_threshold = [silhouette_scores.index(i)+2 for i in silhouette_scores if i > average_silhouette_score]
+
+	print cluster_above_threshold
+
 	
 
 #Function to create features for nodes in the Regulatory Graph
