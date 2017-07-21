@@ -22,6 +22,7 @@ from sklearn import (manifold, datasets, decomposition, ensemble,
              discriminant_analysis, random_projection)
 from features import get_regulatory_networks, get_genes
 from tensor import AutoEncoder
+from sklearn.mixture import GaussianMixture
 
 #Function to create centrality features for the Nodes in the Regulatory Network
 def create_features(graph):
@@ -74,7 +75,7 @@ def create_features(graph):
 
 
 #Function to create visualization
-def visualization(features):
+def visualization(features,cluster_labels):
 	#Elements along X-axis
 	x = [np.take(ele,0) for ele in features]
 
@@ -83,7 +84,7 @@ def visualization(features):
 
 	fig = plt.figure()
 
-	plt.scatter(x,y,label='')
+	plt.scatter(x,y,c=cluster_labels,label='')
 	plt.show()
 
 #Function to create new features from trained network
@@ -121,9 +122,18 @@ def cluster(features):
 	#Extraction of indices for cluster values above silhouette threshold
 	cluster_above_threshold = [silhouette_scores.index(i)+2 for i in silhouette_scores if i > average_silhouette_score]
 
-	print cluster_above_threshold
+	return cluster_above_threshold
 
-	
+
+#Function to perform Expectation Maximization
+def perform_EM(new_features):
+	#Estimation of Model Parameters through Expectation maximization results
+	gmm = GaussianMixture(n_components=3, covariance_type='full').fit(new_features)
+
+	cluster_labels = gmm.predict(new_features)
+
+	return cluster_labels
+
 
 #Function to create features for nodes in the Regulatory Graph
 def regulatory_analysis():
@@ -164,11 +174,14 @@ def regulatory_analysis():
 	#Create 2D features using trained weights and biases
 	new_features = create_new_features(feature_array,weights,biases)
 
-	#Clustering
-	cluster(new_features)	
+	#Clustering - Generating clusters above threshold
+	cluster_above_threshold = cluster(new_features)
+
+	#Obtain Labels from Expectation Maximization
+	gaussian_labels = perform_EM(new_features)	
 
 	#Visualization
-	visualization(new_features)
+	visualization(new_features,gaussian_labels)
 
 
 
