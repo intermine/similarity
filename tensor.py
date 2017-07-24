@@ -88,7 +88,7 @@ def AutoEncoder(input):
 		sess.run(init)
 
 		#Number of Rounds
-		n_rounds = 10000
+		n_rounds = 20000
 
 		#Selection of batch size of 50
 		batch_size = min(n_samples,100)
