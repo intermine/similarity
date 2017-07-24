@@ -42,9 +42,6 @@ def create_features(graph):
 	#Betweeness centrality -- Fraction of all-pairs shortest path that passes through a given network
 	node_betweenness = nx.betweenness_centrality(graph)
 
-	#Edge Betweenness - To find important edges in the network
-	edge_betweenness = nx.edge_betweenness_centrality(graph)
-
 	#Page Rank for node ranking values
 	page_rank = nx.pagerank(graph,alpha=0.8)
 
@@ -73,6 +70,13 @@ def create_features(graph):
 
 
 	return feature_dictionary
+
+#Function to find important edges based on centrality - Edge Betweenness
+def important_edges(graph):
+	#Edge Betweenness - To find important edges in the network
+	edge_betweenness = nx.edge_betweenness_centrality(graph)
+
+	return edge_betweenness
 
 
 #Function to create visualization
@@ -110,6 +114,16 @@ def iso_map(feature_array):
 	components = isomap.fit_transform(feature_array)
 
 	return components
+
+
+
+#PCA 
+def principal_component_analysis(feature_array):
+	pca = PCA(n_components = 2)
+	pca.fit(feature_array)
+	#visualization(pca.transform(feature_array),pca.transform(feature_array))
+
+	return pca.transform(feature_array)
 
 
 #Function to cluster the features
@@ -234,11 +248,32 @@ def regulatory_analysis():
 
 	iso_map_features = iso_map(feature_array)
 	#visualization(new_features,new_features)
+	
 
 	#Obtain Labels from EM Algorithm for Iso map features
 	gaussian_labels_isomap = perform_EM(iso_map_features)
 
-	compare_nonlinear(gaussian_labels_isomap,gaussian_labels_autoencoders)
+
+
+	#visualization(iso_map_features,gaussian_labels_isomap)
+	#visualization(new_features,gaussian_labels_autoencoders)
+
+
+	#compare_nonlinear(gaussian_labels_isomap,gaussian_labels_autoencoders)
+
+	pca_feature = principal_component_analysis(feature_array)
+
+	gaussian_labels_pca = perform_EM(pca_feature)
+
+	compare_nonlinear(gaussian_labels_isomap,gaussian_labels_pca)
+
+	visualization(pca_feature,gaussian_labels_pca)
+	visualization(iso_map_features,gaussian_labels_isomap)
+
+	top_edges = important_edges(g)
+
+	
+
 
 
 
