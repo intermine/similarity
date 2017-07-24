@@ -23,6 +23,7 @@ from sklearn import (manifold, datasets, decomposition, ensemble,
 from features import get_regulatory_networks, get_genes
 from tensor import AutoEncoder
 from sklearn.mixture import GaussianMixture
+from sklearn.manifold import Isomap
 
 #Function to create centrality features for the Nodes in the Regulatory Network
 def create_features(graph):
@@ -85,6 +86,7 @@ def visualization(features,cluster_labels):
 	fig = plt.figure()
 
 	plt.scatter(x,y,c=cluster_labels,label='')
+	#plt.scatter(x,y,label='')
 	plt.show()
 
 #Function to create new features from trained network
@@ -97,6 +99,18 @@ def create_new_features(feature_array,weights,biases):
 		features.append(np.add(np.matmul(feature,weights),biases).tolist())
      
 	return np.array(features)
+
+
+#Non Linear Dimensionality Reduction using Isomaps - Manifold Learning
+def iso_map(feature_array):
+	#Parameters : Number of neighbours to be considered for the point graphs and number of components
+	isomap = Isomap(n_neighbors = 4,n_components = 2)
+
+	#Components in lower dimensional space
+	components = isomap.fit_transform(feature_array)
+
+	return components
+
 
 #Function to cluster the features
 def cluster(features):
@@ -123,6 +137,41 @@ def cluster(features):
 	cluster_above_threshold = [silhouette_scores.index(i)+2 for i in silhouette_scores if i > average_silhouette_score]
 
 	return cluster_above_threshold
+
+
+#Function to compare the results of two methods
+def compare_nonlinear(isomap_labels,autoencoder_labels):
+	#Total labels
+	label_length = len(isomap_labels)
+
+	#Percentage
+	percentage = 0
+
+	#Clusters for isomap
+	clusters_isomap = []
+
+	#Clusters due to autoencoders
+	clusters_autoencoders = []
+
+	for i in range(0,3):
+		clusters_isomap.append(np.where(isomap_labels == i)[0])
+		clusters_autoencoders.append(np.where(autoencoder_labels == i)[0])
+
+
+	#Conversion into appropriate format
+	clusters_isomap = [item.tolist() for item in clusters_isomap]
+	clusters_autoencoders = [item.tolist() for item in clusters_autoencoders]	
+    
+
+	for i in range(0,label_length):
+		#Element is i
+		for j in range(0,3):
+			if i in clusters_isomap[j] and i in clusters_autoencoders[j]:
+				percentage += 1
+
+	print percentage / label_length
+	
+
 
 
 #Function to perform Expectation Maximization
@@ -175,13 +224,25 @@ def regulatory_analysis():
 	new_features = create_new_features(feature_array,weights,biases)
 
 	#Clustering - Generating clusters above threshold
-	cluster_above_threshold = cluster(new_features)
+	#cluster_above_threshold = cluster(new_features)
 
-	#Obtain Labels from Expectation Maximization
-	gaussian_labels = perform_EM(new_features)	
+	#Obtain Labels from EM Algorithm for Autoencoder features
+	gaussian_labels_autoencoders = perform_EM(new_features)	
 
 	#Visualization
-	visualization(new_features,gaussian_labels)
+	#visualization(new_features,gaussian_labels)
+
+	iso_map_features = iso_map(feature_array)
+	#visualization(new_features,new_features)
+
+	#Obtain Labels from EM Algorithm for Iso map features
+	gaussian_labels_isomap = perform_EM(iso_map_features)
+
+	compare_nonlinear(gaussian_labels_isomap,gaussian_labels_autoencoders)
+
+
+
+
 
 
 
