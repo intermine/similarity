@@ -119,7 +119,7 @@ def main_operation():
 	normalized_laplacian_dense = normalized_laplacian.todense()
 
 	#The number of eigen vectors to be obtained for K-means clustering
-	eigen_number = 20
+	eigen_number = 50
 
 	#Function Call for Spectral Clustering
 	cluster_labels = spectral_clustering(normalized_laplacian_dense,eigen_number)
@@ -141,7 +141,7 @@ def main_operation():
 		clusters[cluster_number].append(nodes[i])
 		i+=1
 
-	
+	#Cluster Mappings for color
 	cluster_dict = create_color_mappings(clusters)
 
 	#Drawing the Graph
