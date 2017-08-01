@@ -55,9 +55,9 @@ def spectral_clustering(lap,eigen_number):
 	feature_vector =  v[:,indexes]	
 	
 	#Apply K-means to cluster the nodes
-	clustered = KMeans(n_clusters=4,random_state=10)
+	clustered = KMeans(n_clusters=eigen_number,random_state=10)
 
-	#Predict the Labels
+	#Predict the Label
 	cluster_labels = clustered.fit_predict(v)
 
 	#Returns a numpy array consisting of cluster assignment to each node
@@ -109,7 +109,7 @@ def main_operation():
 	normalized_laplacian_dense = normalized_laplacian.todense()
 
 	#The number of eigen vectors to be obtained for K-means clustering
-	eigen_number = 2
+	eigen_number = 6
 
 	#Function Call for Spectral Clustering
 	cluster_labels = spectral_clustering(normalized_laplacian_dense,eigen_number)
@@ -131,7 +131,7 @@ def main_operation():
 		clusters[cluster_number].append(nodes[i])
 		i+=1
 
-	
+
 	#Visualization
 	cluster_dict = {}
 	for node in clusters[0]:
@@ -143,8 +143,8 @@ def main_operation():
 
 	#Drawing the Graph
 	values = [cluster_dict.get(node,0.25) for node in graph.nodes()]
-	#nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
-	#plt.show()
+	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
+	plt.show()
 
 
 
