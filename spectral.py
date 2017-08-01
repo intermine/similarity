@@ -50,16 +50,18 @@ def spectral_clustering(lap,eigen_number):
 
 	#Extraction of the indexes of the top few eigen values
 	indexes = sorted(range(len(w)), key=lambda j: w[j])[-10:]
+    
+    #Feature vector for the top eigen vectors
+	feature_vector =  v[:,indexes]	
 	
-	
-	#Apply K-means to cluster
-	#clustered = KMeans(n_clusters=eigen_number,random_state=10)
+	#Apply K-means to cluster the nodes
+	clustered = KMeans(n_clusters=4,random_state=10)
 
 	#Predict the Labels
-	#cluster_labels = clustered.fit_predict(v)
+	cluster_labels = clustered.fit_predict(v)
 
 	#Returns a numpy array consisting of cluster assignment to each node
-	return #cluster_labels
+	return cluster_labels
 
 
 
@@ -114,8 +116,6 @@ def main_operation():
 
 	#List of Nodes
 	nodes = graph.nodes()
-
-	print len(nodes)
 
 	#Cluster consisting of similar nodes
 	clusters = {}
