@@ -63,6 +63,19 @@ def spectral_clustering(lap,eigen_number):
 	#Returns a numpy array consisting of cluster assignment to each node
 	return cluster_labels
 
+#Function to create color mappings for visualization
+def create_color_mappings(clusters):
+	cluster_range = 0
+	cluster_mappings = {}
+
+	for i in range(0,len(clusters)):
+		for gene in clusters[i]:
+			cluster_mappings[gene] = cluster_range
+		cluster_range +=1
+
+
+	return cluster_mappings
+
 
 
 #Base function for making function calls
@@ -85,12 +98,13 @@ def main_operation():
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2])
 
+		if i == 1000:
+			break
+		i += 1
+
 
 	#Converting into numpy array
 	adjacency_matrix = nx.to_numpy_matrix(graph)
-
-	#Checking if the Adjacency Matrix Generated is symmetric
-	#print np.allclose(adjacency_matrix,adjacency_matrix.T,atol=1e-8)
 
 	#Normalized Laplacian Matrix
 	normalized_laplacian = nx.normalized_laplacian_matrix(graph)
@@ -105,7 +119,7 @@ def main_operation():
 	normalized_laplacian_dense = normalized_laplacian.todense()
 
 	#The number of eigen vectors to be obtained for K-means clustering
-	eigen_number = 6
+	eigen_number = 20
 
 	#Function Call for Spectral Clustering
 	cluster_labels = spectral_clustering(normalized_laplacian_dense,eigen_number)
@@ -127,24 +141,15 @@ def main_operation():
 		clusters[cluster_number].append(nodes[i])
 		i+=1
 
-
-	#Visualization
-	cluster_dict = {}
-	for node in clusters[0]:
-		cluster_dict[node] = 0
-
-	for node in clusters[1]:
-		cluster_dict[node] = 1
-
+	
+	cluster_dict = create_color_mappings(clusters)
 
 	#Drawing the Graph
 	values = [cluster_dict.get(node,0.25) for node in graph.nodes()]
 	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
 	plt.show()
 
-	for nodes in clusters:
-		print clusters[nodes]
-		print "\n"
+
 
 
 
