@@ -85,10 +85,6 @@ def main_operation():
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2])
 
-		if i == 200:
-			break
-
-		i += 1
 
 	#Converting into numpy array
 	adjacency_matrix = nx.to_numpy_matrix(graph)
@@ -145,6 +141,10 @@ def main_operation():
 	values = [cluster_dict.get(node,0.25) for node in graph.nodes()]
 	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
 	plt.show()
+
+	for nodes in clusters:
+		print clusters[nodes]
+		print "\n"
 
 
 
