@@ -119,7 +119,7 @@ def main_operation():
 	normalized_laplacian_dense = normalized_laplacian.todense()
 
 	#The number of eigen vectors to be obtained for K-means clustering
-	eigen_number = 50
+	eigen_number = 100
 
 	#Function Call for Spectral Clustering
 	cluster_labels = spectral_clustering(normalized_laplacian_dense,eigen_number)
@@ -148,6 +148,12 @@ def main_operation():
 	values = [cluster_dict.get(node,0.25) for node in graph.nodes()]
 	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
 	plt.show()
+
+	for key,values in clusters.items():
+		print values
+
+
+
 
 
 
