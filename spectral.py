@@ -48,7 +48,7 @@ def spectral_clustering(lap,eigen_number):
 	#Convert the Eigen Vector to list 
 	eigen_vectors = v.tolist()
 
-	#Extraction of the indexes of the top few eigen values
+	#Extraction of the indexes of the smallest eigen values
 	indexes = sorted(range(len(w)), key=lambda j: w[j])[-10:]
     
     #Feature vector for the top eigen vectors
