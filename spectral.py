@@ -49,7 +49,7 @@ def spectral_clustering(lap,eigen_number):
 	eigen_vectors = v.tolist()
 
 	#Extraction of the indexes of the smallest eigen values
-	indexes = sorted(range(len(w)), key=lambda j: w[j])[-10:]
+	indexes = sorted(range(len(w)), key=lambda j: w[j])[:10]
     
     #Feature vector for the top eigen vectors
 	feature_vector =  v[:,indexes]	
@@ -149,8 +149,8 @@ def main_operation():
 	nx.draw(graph,cmap=plt.get_cmap('jet'),node_color = values)
 	plt.show()
 
-	for key,values in clusters.items():
-		print values
+	#for key,values in clusters.items():
+	#	print values
 
 
 
