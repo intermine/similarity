@@ -18,10 +18,6 @@ import random
 import math
 
 
-#Function to visualize the clustering as a dendogram - To be completed via formation of linkage matrix
-def dendogram():
-	return 1
-
 #Function to compute intersection of two lists
 def intersect(list1,list2):
 	return list(set(list1) & set(list2))
