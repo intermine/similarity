@@ -133,7 +133,7 @@ def girvan_newman_modularity(graph,degree_node,edge_weight):
 		random_edges = 0
 		for node in component:
 			edges_within_community += new_degree[node]
-			random_edges = degree_node[node]
+			random_edges += degree_node[node]
 
 		modularity += (float(edges_within_community) - float(random_edges*random_edges)/(2*edge_weight))
 
@@ -189,6 +189,7 @@ def main():
 
 		#Adding the edge in NetworkX
 		graph.add_edge(edge[0],edge[2],weight=1.0)
+
 		
 		
 
