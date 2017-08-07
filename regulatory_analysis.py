@@ -198,6 +198,24 @@ def perform_EM(new_features):
 	return cluster_labels
 
 
+#Function to Extracted the Top Edges from the Network
+def print_top_edges(top_edges):
+	#Top Sorted Edges
+	top_edges_sorted = sorted(top_edges.items(),key = lambda x: -x[1])
+
+	#Save the Results in a File
+	f_edges = open('Results/top_edges.txt','w')
+
+	for edge in top_edges_sorted:
+		f_edges.write(str(edge))
+		f_edges.write("\n\n")
+
+
+	f_edges.close()
+
+
+
+
 #Function to create features for nodes in the Regulatory Graph
 def regulatory_analysis():
 	#Connection to Neo4j
@@ -246,31 +264,33 @@ def regulatory_analysis():
 	#Visualization
 	#visualization(new_features,gaussian_labels)
 
-	iso_map_features = iso_map(feature_array)
+	##iso_map_features = iso_map(feature_array)
 	#visualization(new_features,new_features)
 	
 
 	#Obtain Labels from EM Algorithm for Iso map features
-	gaussian_labels_isomap = perform_EM(iso_map_features)
+	##gaussian_labels_isomap = perform_EM(iso_map_features)
+
+	
 
 
 
 	#visualization(iso_map_features,gaussian_labels_isomap)
-	#visualization(new_features,gaussian_labels_autoencoders)
 
+	##visualization(new_features,gaussian_labels_autoencoders)
 
-	#compare_nonlinear(gaussian_labels_isomap,gaussian_labels_autoencoders)
+	##pca_feature = principal_component_analysis(feature_array)
 
-	pca_feature = principal_component_analysis(feature_array)
+	##gaussian_labels_pca = perform_EM(pca_feature)
 
-	gaussian_labels_pca = perform_EM(pca_feature)
+	##compare_nonlinear(gaussian_labels_isomap,gaussian_labels_pca)
 
-	compare_nonlinear(gaussian_labels_isomap,gaussian_labels_pca)
+	#visualization(pca_feature,gaussian_labels_pca)
+	#visualization(,gaussian_labels_isomap)
 
-	visualization(pca_feature,gaussian_labels_pca)
-	visualization(iso_map_features,gaussian_labels_isomap)
+	#top_edges = important_edges(g)
 
-	top_edges = important_edges(g)
+	#print_top_edges(top_edges)
 
 	
 
