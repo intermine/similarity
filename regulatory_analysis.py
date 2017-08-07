@@ -214,6 +214,33 @@ def print_top_edges(top_edges):
 	f_edges.close()
 
 
+#Function to generate results for the clusters formed by combining Autoencoders and EM Algorithm
+def print_clusters(cluster_labels, genes):
+	#Extract the number of unique clusters
+	unique_clusters =  np.unique(cluster_labels)
+
+	#Extract the clusters from the cluster labels
+	final_clusters = []
+    
+    #Extraction of the indexes for the clusters
+	indexes = [np.where(cluster_labels == cluster_number)[0] for cluster_number in unique_clusters]
+
+
+	for index in indexes:
+		cluster_index = index.tolist()
+		final_clusters.append([genes[i] for i in cluster_index])
+
+
+	#Print the results in a File
+	f_nodes = open('Results/similar_genes_autoencoders.txt','w')
+
+	for cluster in final_clusters:
+		f_nodes.write(str(cluster))
+		f_nodes.write("\n\n")
+
+
+	f_nodes.close()
+
 
 
 #Function to create features for nodes in the Regulatory Graph
@@ -261,6 +288,8 @@ def regulatory_analysis():
 	#Obtain Labels from EM Algorithm for Autoencoder features
 	gaussian_labels_autoencoders = perform_EM(new_features)	
 
+	print_clusters(gaussian_labels_autoencoders,g.nodes())
+
 	#Visualization
 	#visualization(new_features,gaussian_labels)
 
@@ -271,7 +300,9 @@ def regulatory_analysis():
 	#Obtain Labels from EM Algorithm for Iso map features
 	##gaussian_labels_isomap = perform_EM(iso_map_features)
 
-	
+
+
+
 
 
 
