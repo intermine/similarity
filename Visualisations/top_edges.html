@@ -4,10 +4,21 @@
   
   <head>
       <style type="text/css">
-        .node {stroke: #fff; stroke-width: 1.5px;}
-        .link {stroke: #999; stroke-opacity: .6;}
+        .node {
+          stroke: #fff; 
+          stroke-width: 1.5px;
+        }
+        .link {
+          stroke: #999; 
+          stroke-opacity: .6;
+        }
         svg {
-            border: 1px solid #ccc;
+          border: 1px solid #ccc;
+          }
+        d3-tip {
+          line-height: 2;
+          color: black;
+          font : 20px, helvetica;
           }
       </style>
   </head>
@@ -17,9 +28,9 @@
       <script type="text/javascript">
         
         var svg = d3.select("svg"),
-            width = 1500,
-            height = 1500,
-            radius = 6;
+            width = window.innerWidth - 150,
+            height = window.innerHeight - 150,
+            radius = 8;
                 
         var color = d3.scaleOrdinal(d3.schemeCategory20);
         
@@ -34,7 +45,7 @@
         
         d3.json("top_edges_graph.json", function(error, graph) {
           if (error) throw error;
-        
+
           var link = svg.append("g")
             .attr("class", "links")
             .selectAll("line")
@@ -51,12 +62,16 @@
             .attr("r", radius - .75)
             .attr("fill", function(d) { return color(d.degree); })
             .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended));
-        
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended));
+
+          // Hover over any node to see the details about it.
           node.append("title").text(function(d) { return "gene-id: " + d.id + "\n" + "degree: " + d.degree; });
-        
+
+          // Double click on node to highlight it.
+          node.on("dblclick", connectedNodes);
+
           simulation.nodes(graph.nodes).on("tick", ticked);
         
           simulation.force("link").links(graph.links);
@@ -67,13 +82,61 @@
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
-        
+            
             node
                 .attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
                 .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
             }
 
+          // ---Code to ighlight nodes---
+
+          var toggle = 0;
+
+          //An array logging what is connected to what
+          var linkedByIndex = {};
+
+          for (i = 0; i < graph.nodes.length; i++) {
+              linkedByIndex[i + "," + i] = 1;
+          };
+
+          graph.links.forEach(function (d) {
+              linkedByIndex[d.source.index + "," + d.target.index] = 1;
           });
+
+          //This function looks up whether a pair are neighbours
+          function neighboring(a, b) {
+              return linkedByIndex[a.index + "," + b.index];
+          }
+
+          function connectedNodes() {
+              if (toggle == 0) {
+                  //Reduce the opacity of all but the neighbouring nodes
+                  d = d3.select(this).node().__data__;
+                  
+                  node.style("opacity", function (o) {
+                      return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+                  });
+                  
+                  link.style("opacity", function (o) {
+                      return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
+                  });
+                  
+                  //Reduce the op
+                  toggle = 1;
+              } 
+
+              else {
+                  //Put them back to opacity=1
+                  node.style("opacity", 1);
+                  link.style("opacity", 1);
+                  toggle = 0;
+              }
+          }
+
+          //---End---
+
+        });
+
         function dragstarted(d) {
           if (!d3.event.active) simulation.alphaTarget(0.3).restart();
           d.fx = d.x;
