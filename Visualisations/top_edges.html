@@ -14,12 +14,11 @@
         }
         svg {
           border: 1px solid #ccc;
-          }
-        d3-tip {
-          line-height: 2;
-          color: black;
-          font : 20px, helvetica;
-          }
+        }
+        p {
+          font-size:  20px;
+          font-family: helvetica;
+        }
       </style>
   </head>
 
@@ -91,7 +90,6 @@
             }
 
           // ---Code to ighlight nodes---
-
           var toggle = 0;
 
           //An array logging what is connected to what
@@ -135,8 +133,6 @@
               }
           }
 
-          //---End---
-
         });
 
         function dragstarted(d) {
@@ -156,6 +152,10 @@
           d.fy = null;
         }
       </script>
+
+    <p>Double click on any node to highlight it.</p>
+    <p>The opacity and color of the links show the weight between the nodes.</p>
+    <p>On hovering over the nodes, their 'gene-id' and 'degree' can be seen</p>
   </body>
 
 </html>
