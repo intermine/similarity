@@ -39,3 +39,11 @@ data = json_graph.node_link_data(G)
 print "Writing to 'Results/top_edges_grap.json' file"
 with open('Results/top_edges_graph.json', 'w') as file:
 	json.dump(data, file, indent=4)
+
+
+Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+
+httpd = SocketServer.TCPServer(("", PORT), Handler)
+
+print "serving at port", PORT
+httpd.serve_forever()
