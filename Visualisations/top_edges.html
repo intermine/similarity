@@ -33,7 +33,8 @@
             radius = 8;
                 
         var color = d3.scaleOrdinal(d3.schemeCategory20);
-        
+        var color_nodes = d3.scaleOrdinal(d3.schemeCategory10);
+
         var svg = d3.select("body").append("svg")
             .attr("width", width)
             .attr("height", height);
@@ -51,8 +52,9 @@
             .selectAll("line")
             .data(graph.links)
             .enter().append("line")
-            .attr("stroke", function(d) {return color(d.weight*100); })
-            .attr("stroke-width", 2 );
+            .attr("stroke", function(d) {return color(d.weight*10); }) // Color the link using weight as the patameter. Darker the weight, higher the weight
+            .attr("stroke-opacity", function(d) {return d.weight*10;}) // The more opaque the link is the lower the weight
+            .attr("stroke-width", 2);
         
           var node = svg.append("g")
             .attr("class", "nodes")
@@ -60,7 +62,7 @@
             .data(graph.nodes)
             .enter().append("circle")
             .attr("r", radius - .75)
-            .attr("fill", function(d) { return color(d.degree); })
+            .attr("fill", function(d) { return color_nodes(d.degree); })// Color the nodes with respect to it's degree
             .call(d3.drag()
               .on("start", dragstarted)
               .on("drag", dragged)
