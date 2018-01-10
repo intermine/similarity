@@ -42,7 +42,7 @@ def get_graph_features(graph):
 
 G = get_graph_features(G)
 
-data = json_graph.node_link_data(G)
+data = json_graph.node_link_data(G, {'source': 'source', 'target': 'target', 'id': 'id'})
 
 print "Writing to 'Visualisations/top_edges_grap.json' file..."
 with open('Visualisations/top_edges_graph.json', 'w') as file:

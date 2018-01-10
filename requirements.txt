@@ -1,6 +1,6 @@
-pandas
-py2neo 
-networkx
-matplotlib
-numpy
-sklearn
+matplotlib==2.1.1
+networkx==2.0
+numpy==1.14.0
+pandas==0.22.0
+py2neo==3.1.2
+sklearn==0.0
