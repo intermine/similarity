@@ -1,0 +1,31 @@
+#left {
+  float: left;
+}
+
+#right {
+  float: right;
+}
+
+.node {
+  stroke: #fff; 
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 9px helvetica;
+}
+
+.link {
+  stroke: #999; 
+  stroke-opacity: .6;
+}
+
+svg {
+  border: 1px solid #ccc;
+}
+
+p {
+  font-size:  12px;
+  font-family: helvetica;
+  word-wrap: break-word;
+}
