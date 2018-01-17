@@ -127,14 +127,19 @@
                 link.style("opacity", 1);
                 DblClickToggle = 0;
             }
+            d3.selectAll('text').remove();
+            document.getElementById('single_click').innerHTML = "";
+            singleClickToggle = 1;
         }
 
         //--code to get details about the selected node--
         var singleClickToggle = 0;
 
         function GetDetails() {
-          if(singleClickToggle==0){
+          d3.selectAll('text').remove();
+          document.getElementById('single_click').innerHTML = "";
 
+          if(singleClickToggle==0){
             d = d3.select(this).node().__data__;
             gene = d.id;
     
@@ -180,6 +185,7 @@
 
           else{
             d3.selectAll('text').remove();
+            document.getElementById('single_click').innerHTML = "";
             singleClickToggle = 0;
           }
         };
