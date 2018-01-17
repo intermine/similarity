@@ -1,5 +1,9 @@
-#left {
+#left_div {
   float: left;
+}
+
+#left {
+  float : left;
 }
 
 #right {

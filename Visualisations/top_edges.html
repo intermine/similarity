@@ -10,29 +10,25 @@
   </head>
 
   <body>
-    <div id="left"> </div>
+    <div id="left_div"> </div>
 
-    <div id="right">
+    <div id="left_div">
+      <p>The opacity and color of the links show the weight between the nodes.</p>
       <p>Click on any node to get it's details.</p>
       <p id="single_click"></p>
     </div>
-    
-    <div id="left">
-      <p>The opacity and color of the links show the weight between the nodes.</p>
-    </div>
-    
 
     <script type="text/javascript">
       
       var svg = d3.select("svg"),
-      width = window.innerWidth - 220,
+      width = window.innerWidth,
       height = window.innerHeight - 200,
       radius = 8;
                     
       var color = d3.scaleOrdinal(d3.schemeCategory20);
       var color_nodes = d3.scaleOrdinal(d3.schemeCategory10);
       
-      var svg = d3.select("#left").append("svg")
+      var svg = d3.select("#left_div").append("svg")
           .attr("width", width)
           .attr("height", height);
       
@@ -70,8 +66,8 @@
         //node.append("title").text(function(d) { return "gene-id: " + d.id + "\n" + "degree: " + d.degree; });
         
         // Double click on node to highlight it.
-        //node.on("dblclick", connectedNodes);
-        node.on("dblclick", GetDetails);
+        node.on("dblclick", connectedNodes);
+        node.on("click", GetDetails);
         
         // --simulation code--
         simulation.nodes(graph.nodes).on("tick", ticked);
@@ -88,11 +84,6 @@
           node
               .attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
               .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
-
-          d3.selectAll("text")
-          .attr("x", function (d) {return d.x;})
-          .attr("y", function (d) {return d.y;});
-          
           }
         
         // ---Code to ighlight nodes---
@@ -139,47 +130,58 @@
         }
 
         //--code to get details about the selected node--
-       function GetDetails() {
- 
-         d = d3.select(this).node().__data__;
-         gene = d.id;
- 
-         var flymine = new imjs.Service({root: "www.flymine.org/flymine/service"});
-         
-         var query = {
-           "from" : "Gene",
-           "select" : [
-                   "secondaryIdentifier",
-                   "symbol",
-                   "primaryIdentifier",
-                   "organism.name"
-           ],
-           "where" : [
-                 {
-                   "path" : "primaryIdentifier",
-                   "op" : "eq",
-                   "value" : gene,
-                   "code" : "A"
-                 }
-           ]
-         };
-         
-         flymine.records(query).then(function(records) {
-           var record = records[0]
-           var details = "<pre>"
-                 + "primaryIdentifier: " + record.primaryIdentifier + "\n"
-                 + "secondaryIdentifier: " + record.secondaryIdentifier + "\n"
-                 + "organism name: " + record.organism.name + "\n"
-                 + "symbol: " + record.symbol
-                 + "</pre>";
-           console.log(details);
-           document.getElementById('single_click').innerHTML = details;
-           node.append("text")
-               .attr("dx", 10)
-               .attr("dy", ".35em")
-               .text(gene)
-               .style("stroke", "gray")
-         });
+        var singleClickToggle = 0;
+
+        function GetDetails() {
+          if(singleClickToggle==0){
+
+            d = d3.select(this).node().__data__;
+            gene = d.id;
+    
+            var flymine = new imjs.Service({root: "www.flymine.org/flymine/service"});
+            
+            var query = {
+              "from" : "Gene",
+              "select" : [
+                      "secondaryIdentifier",
+                      "symbol",
+                      "primaryIdentifier",
+                      "organism.name"
+              ],
+              "where" : [
+                    {
+                      "path" : "primaryIdentifier",
+                      "op" : "eq",
+                      "value" : gene,
+                      "code" : "A"
+                    }
+              ]
+            };
+            
+            flymine.records(query).then(function(records) {
+              var record = records[0]
+              var details = "<pre>"
+                    + "primaryIdentifier: ".bold() + record.primaryIdentifier + "\n"
+                    + "secondaryIdentifier: ".bold() + record.secondaryIdentifier + "\n"
+                    + "organism name: ".bold() + record.organism.name + "\n"
+                    + "symbol: ".bold() + record.symbol
+                    + "</pre>";
+              console.log(details);
+              svg.append("text")
+                 .attr("x", d.x)
+                 .attr("y", d.y)
+                 .text(gene);
+              document.getElementById('single_click').innerHTML = details;
+
+            });
+
+            singleClickToggle = 1;
+          }
+
+          else{
+            d3.selectAll('text').remove();
+            singleClickToggle = 0;
+          }
         };
       });
       
