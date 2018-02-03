@@ -3,159 +3,213 @@
 <html>
   
   <head>
-      <style type="text/css">
-        .node {
-          stroke: #fff; 
-          stroke-width: 1.5px;
-        }
-        .link {
-          stroke: #999; 
-          stroke-opacity: .6;
-        }
-        svg {
-          border: 1px solid #ccc;
-        }
-        p {
-          font-size:  20px;
-          font-family: helvetica;
-        }
-      </style>
+      <link href="top_edges.css" rel="stylesheet" type="text/css" >
+      <script src="https://d3js.org/d3.v4.js" type="text/javascript"></script>
+      <script src="http://cdn.intermine.org/js/intermine/imjs/3.14.0/im.js"></script>
+     
   </head>
 
   <body>
-      <script src="https://d3js.org/d3.v4.js" type="text/javascript"></script>
-      <script type="text/javascript">
-        
-        var svg = d3.select("svg"),
-            width = window.innerWidth - 150,
-            height = window.innerHeight - 150,
-            radius = 8;
-                
-        var color = d3.scaleOrdinal(d3.schemeCategory20);
-        var color_nodes = d3.scaleOrdinal(d3.schemeCategory10);
+    <div id="left_div"> </div>
 
-        var svg = d3.select("body").append("svg")
-            .attr("width", width)
-            .attr("height", height);
+    <div id="left_div">
+      <p>The opacity and color of the links show the weight between the nodes.</p>
+      <p>Double click to highlight the node and the nodes connected to it</p>
+      <p>Click on any node to get it's details.</p>
+      <p id="single_click"></p>
+    </div>
 
-        var simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(function(d) { return d.id; }))
-            .force("charge", d3.forceManyBody().strength(-150))
-            .force("center", d3.forceCenter(width/2, height/2));
-        
-        d3.json("top_edges_graph.json", function(error, graph) {
-          if (error) throw error;
-
-          var link = svg.append("g")
-            .attr("class", "links")
-            .selectAll("line")
-            .data(graph.links)
-            .enter().append("line")
-            .attr("stroke", function(d) {return color(d.weight*10); }) // Color the link using weight as the patameter. Darker the weight, higher the weight
-            .attr("stroke-opacity", function(d) {return d.weight*10;}) // The more opaque the link is the lower the weight
-            .attr("stroke-width", 2);
-        
-          var node = svg.append("g")
-            .attr("class", "nodes")
-            .selectAll("circle")
-            .data(graph.nodes)
-            .enter().append("circle")
-            .attr("r", radius - .75)
-            .attr("fill", function(d) { return color_nodes(d.degree); })// Color the nodes with respect to it's degree
-            .call(d3.drag()
-              .on("start", dragstarted)
-              .on("drag", dragged)
-              .on("end", dragended));
-
-          // Hover over any node to see the details about it.
-          node.append("title").text(function(d) { return "gene-id: " + d.id + "\n" + "degree: " + d.degree; });
-
-          // Double click on node to highlight it.
-          node.on("dblclick", connectedNodes);
-
-          simulation.nodes(graph.nodes).on("tick", ticked);
-        
-          simulation.force("link").links(graph.links);
-        
-          function ticked() {
-            link
-                .attr("x1", function(d) { return d.source.x; })
-                .attr("y1", function(d) { return d.source.y; })
-                .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) { return d.target.y; });
+    <script type="text/javascript">
+      
+      var svg = d3.select("svg"),
+      width = window.innerWidth,
+      height = window.innerHeight - 200,
+      radius = 8;
+                    
+      var color = d3.scaleOrdinal(d3.schemeCategory20);
+      var color_nodes = d3.scaleOrdinal(d3.schemeCategory10);
+      
+      var svg = d3.select("#left_div").append("svg")
+          .attr("width", width)
+          .attr("height", height);
+      
+      var simulation = d3.forceSimulation()
+          .force("link", d3.forceLink().id(function(d) { return d.id; }))
+          .force("charge", d3.forceManyBody().strength(-150))
+          .force("center", d3.forceCenter(width/2, height/2));
             
-            node
-                .attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-                .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
-            }
-
-          // ---Code to ighlight nodes---
-          var toggle = 0;
-
-          //An array logging what is connected to what
-          var linkedByIndex = {};
-
-          for (i = 0; i < graph.nodes.length; i++) {
-              linkedByIndex[i + "," + i] = 1;
-          };
-
-          graph.links.forEach(function (d) {
-              linkedByIndex[d.source.index + "," + d.target.index] = 1;
-          });
-
-          //This function looks up whether a pair are neighbours
-          function neighboring(a, b) {
-              return linkedByIndex[a.index + "," + b.index];
+      d3.json("top_edges_graph.json", function(error, graph) {
+        
+        if (error) throw error;
+        
+        var link = svg.append("g")
+          .attr("class", "links")
+          .selectAll("line")
+          .data(graph.links)
+          .enter().append("line")
+          .attr("stroke", function(d) {return color(d.weight*10); }) // Color the link using weight as the patameter. Darker the weight,      higher the weight
+          .attr("stroke-opacity", function(d) {return d.weight*10;}) // The more opaque the link is the lower the weight
+          .attr("stroke-width", 2);
+      
+        var node = svg.append("g")
+          .attr("class", "nodes")
+          .selectAll("circle")
+          .data(graph.nodes)
+          .enter().append("circle")
+          .attr("r", radius - .75)
+          .attr("fill", function(d) { return color_nodes(d.degree); })// Color the nodes with respect to it's degree
+          .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+        
+        // Hover over any node to see the details about it.
+        //node.append("title").text(function(d) { return "gene-id: " + d.id + "\n" + "degree: " + d.degree; });
+        
+        // Double click on node to highlight it.
+        node.on("dblclick", connectedNodes);
+        node.on("click", GetDetails);
+        
+        // --simulation code--
+        simulation.nodes(graph.nodes).on("tick", ticked);
+      
+        simulation.force("link").links(graph.links);
+      
+        function ticked() {
+          link
+              .attr("x1", function(d) { return d.source.x; })
+              .attr("y1", function(d) { return d.source.y; })
+              .attr("x2", function(d) { return d.target.x; })
+              .attr("y2", function(d) { return d.target.y; });
+          
+          node
+              .attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+              .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
           }
-
-          function connectedNodes() {
-              if (toggle == 0) {
-                  //Reduce the opacity of all but the neighbouring nodes
-                  d = d3.select(this).node().__data__;
-                  
-                  node.style("opacity", function (o) {
-                      return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-                  });
-                  
-                  link.style("opacity", function (o) {
-                      return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
-                  });
-                  
-                  //Reduce the opacity
-                  toggle = 1;
-              } 
-
-              else {
-                  //Put them back to opacity=1
-                  node.style("opacity", 1);
-                  link.style("opacity", 1);
-                  toggle = 0;
-              }
-          }
-
+        
+        // ---Code to ighlight nodes---
+        var DblClickToggle = 0;
+        
+        //An array logging what is connected to what
+        var linkedByIndex = {};
+        
+        for (i = 0; i < graph.nodes.length; i++) {
+            linkedByIndex[i + "," + i] = 1;
+        };
+        
+        graph.links.forEach(function (d) {
+            linkedByIndex[d.source.index + "," + d.target.index] = 1;
         });
-
-        function dragstarted(d) {
-          if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-          d.fx = d.x;
-          d.fy = d.y;
+        
+        //This function looks up whether a pair are neighbours
+        function neighboring(a, b) {
+            return linkedByIndex[a.index + "," + b.index];
         }
         
-        function dragged(d) {
-          d.fx = d3.event.x;
-          d.fy = d3.event.y;
+        function connectedNodes() {
+            if (DblClickToggle == 0) {
+                //Reduce the opacity of all but the neighbouring nodes
+                d = d3.select(this).node().__data__;
+                
+                node.style("opacity", function (o) {
+                    return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+                });
+                
+                link.style("opacity", function (o) {
+                    return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
+                });
+                
+                //Reduce the opacity
+                DblClickToggle = 1;
+            } 
+            else {
+                //Put them back to opacity=1
+                node.style("opacity", 1);
+                link.style("opacity", 1);
+                DblClickToggle = 0;
+            }
+            d3.selectAll('text').remove();
+            document.getElementById('single_click').innerHTML = "";
+            singleClickToggle = 1;
         }
-        
-        function dragended(d) {
-          if (!d3.event.active) simulation.alphaTarget(0);
-          d.fx = null;
-          d.fy = null;
-        }
-      </script>
 
-    <p>Double click on any node to highlight it.</p>
-    <p>The opacity and color of the links show the weight between the nodes.</p>
-    <p>On hovering over the nodes, their 'gene-id' and 'degree' can be seen</p>
+        //--code to get details about the selected node--
+        var singleClickToggle = 0;
+
+        function GetDetails() {
+          d3.selectAll('text').remove();
+          document.getElementById('single_click').innerHTML = "";
+
+          if(singleClickToggle==0){
+            d = d3.select(this).node().__data__;
+            gene = d.id;
+    
+            var flymine = new imjs.Service({root: "www.flymine.org/flymine/service"});
+            
+            var query = {
+              "from" : "Gene",
+              "select" : [
+                      "secondaryIdentifier",
+                      "symbol",
+                      "primaryIdentifier",
+                      "organism.name"
+              ],
+              "where" : [
+                    {
+                      "path" : "primaryIdentifier",
+                      "op" : "eq",
+                      "value" : gene,
+                      "code" : "A"
+                    }
+              ]
+            };
+            
+            flymine.records(query).then(function(records) {
+              var record = records[0]
+              var details = "<pre>"
+                    + "primaryIdentifier: ".bold() + record.primaryIdentifier + "\n"
+                    + "secondaryIdentifier: ".bold() + record.secondaryIdentifier + "\n"
+                    + "organism name: ".bold() + record.organism.name + "\n"
+                    + "symbol: ".bold() + record.symbol
+                    + "</pre>";
+              console.log(details);
+              svg.append("text")
+                 .attr("x", d.x)
+                 .attr("y", d.y)
+                 .text(gene);
+              document.getElementById('single_click').innerHTML = details;
+
+            });
+
+            singleClickToggle = 1;
+          }
+
+          else{
+            d3.selectAll('text').remove();
+            document.getElementById('single_click').innerHTML = "";
+            singleClickToggle = 0;
+          }
+        };
+      });
+      
+      //--code to make the nodes move and dragable
+      function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+      
+      function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+      
+      function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+    </script>
   </body>
 
 </html>
