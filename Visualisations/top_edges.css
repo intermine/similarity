@@ -33,3 +33,7 @@ p {
   font-family: helvetica;
   word-wrap: break-word;
 }
+
+#imtable-element {
+  width: 50em;
+}
