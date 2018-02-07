@@ -10,17 +10,20 @@
   float: right;
 }
 
-.node {
-  stroke: #fff; 
+/** fixed the next 3 classes to match the top_edge.html class calls */
+
+.nodes {
+  stroke: #fff;
   stroke-width: 1.5px;
+  cursor: pointer; /** added cursor style */
 }
 
-.node text {
+.nodes text {
   font: 9px helvetica;
 }
 
-.link {
-  stroke: #999; 
+.links {
+  stroke: #999;
   stroke-opacity: .6;
 }
 
