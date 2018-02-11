@@ -108,6 +108,27 @@
         function neighboring(a, b) {
             return linkedByIndex[a.index + "," + b.index];
         }
+
+        function waitTillTableIsVisible(selector, time) {
+            if(document.querySelector(selector) != null) {
+                // fetch the table element when it's loaded completely
+                table = document.getElementsByTagName('table')[0];
+                // get the thead element
+                thead = table.children[0];
+                tr = document.createElement("TR");
+                // add <th> to the new row that spans the whole table
+                tr.innerHTML = "<th colspan='4'>Selected Node + Similar items</th>";
+                // make the newly created row as the first row
+                thead.insertBefore(tr,thead.childNodes[0]);
+                return;
+            }
+            else {
+                setTimeout(function() {
+                    waitTillTableIsVisible(selector, time);
+                }, time);
+            }
+        }
+        
         
         function connectedNodes() {
             if (DblClickToggle == 0) {
@@ -150,7 +171,11 @@
                   {"start":0,"size":25}, // May be null
                   {service: service, query: query} // May be an imjs.Query
                 ).then(
-                  function (table) { console.log('Table loaded', table); },
+                  function (table) { 
+                      console.log('Table loaded', table); 
+                      // Polls for the 'table' element every '10' millisecond
+                      waitTillTableIsVisible('table', 10);
+                  },
                   function (error) { console.error('Could not load table', error); }
                 );
                 //Reduce the opacity
