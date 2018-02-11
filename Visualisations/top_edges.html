@@ -201,7 +201,7 @@
             
             flymine.records(query).then(function(records) {
               var record = records[0]
-              var details = "<pre>"
+              var details = "<h1>Selected Node:</h1>" + "<pre>"
                     + "primaryIdentifier: ".bold() + record.primaryIdentifier + "\n"
                     + "secondaryIdentifier: ".bold() + record.secondaryIdentifier + "\n"
                     + "organism name: ".bold() + record.organism.name + "\n"
