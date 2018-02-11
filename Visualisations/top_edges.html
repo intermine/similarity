@@ -14,7 +14,7 @@
     <div id="left_div"> </div>
 
     <div id="left_div">
-      <div id="imtable-element">Double click on a node to load the table.</div>
+      <div id="imtable-element">Double click on a node to load more info about the node and its closest neighbours.</div>
       <hr>
       <p>The opacity and color of the links show the weight between the nodes.</p>
       <p>Double click to highlight the node and the nodes connected to it</p>
@@ -160,7 +160,7 @@
                 //Put them back to opacity=1
                 node.style("opacity", 1);
                 link.style("opacity", 1);
-                document.getElementById('imtable-element').innerHTML = 'Double click on a node to load the table';
+                document.getElementById('imtable-element').innerHTML = 'Double click on a node to load more info about the node and its closest neighbours.';
                 DblClickToggle = 0;
             }
             d3.selectAll('text').remove();
