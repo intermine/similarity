@@ -13,8 +13,8 @@
   <body>
     <div id="left_div"> </div>
 
-    <div id="left_div">
-      <div id="imtable-element">Double click on a node to load the table.</div>
+    <div id="table_div">
+      <div id="imtable-element">Double click on a node to load more info about the node and its closest neighbours.</div>
       <hr>
       <p>The opacity and color of the links show the weight between the nodes.</p>
       <p>Double click to highlight the node and the nodes connected to it</p>
@@ -95,6 +95,9 @@
         
         //An array logging what is connected to what
         var linkedByIndex = {};
+
+        // h2 element used as the table header
+        var table_header;
         
         for (i = 0; i < graph.nodes.length; i++) {
             linkedByIndex[i + "," + i] = 1;
@@ -108,7 +111,8 @@
         function neighboring(a, b) {
             return linkedByIndex[a.index + "," + b.index];
         }
-        
+
+       
         function connectedNodes() {
             if (DblClickToggle == 0) {
                 //Reduce the opacity of all but the neighbouring nodes
@@ -150,7 +154,26 @@
                   {"start":0,"size":25}, // May be null
                   {service: service, query: query} // May be an imjs.Query
                 ).then(
-                  function (table) { console.log('Table loaded', table); },
+                  function (table) { 
+                      console.log('Table loaded', table);
+                      // check if the table_header element is initialized
+                      if(table_header == null){
+                          // div containing the table
+                          var table_div;
+                          var h2;
+                          table_div = document.getElementById("table_div");
+                          h2 = document.createElement("h2");
+                          h2.innerText = "Selected Node + Similar items";
+                          // making h2 element as the first child of the table_div
+                          table_div.insertBefore(h2, table_div.firstChild); 
+                          table_header = table_div.firstChild;
+                      }
+                      else{
+                          // make the header visible 
+                          table_header.style.display = "block";
+                          table_header.style.visibility = "visible";
+                      }
+                  },
                   function (error) { console.error('Could not load table', error); }
                 );
                 //Reduce the opacity
@@ -160,7 +183,13 @@
                 //Put them back to opacity=1
                 node.style("opacity", 1);
                 link.style("opacity", 1);
-                document.getElementById('imtable-element').innerHTML = 'Double click on a node to load the table';
+                document.getElementById('imtable-element').innerHTML = 'Double click on a node to load more info about the node and its closest neighbours.';
+                // check if the table_header element is initialized
+                if(table_header != null){
+                    // hide the header
+                    table_header.style.display = "none";
+                    table_header.style.visibility == "hidden";
+                }
                 DblClickToggle = 0;
             }
             d3.selectAll('text').remove();
@@ -201,7 +230,7 @@
             
             flymine.records(query).then(function(records) {
               var record = records[0]
-              var details = "<pre>"
+              var details = "<h1>Selected Node:</h1>" + "<pre>"
                     + "primaryIdentifier: ".bold() + record.primaryIdentifier + "\n"
                     + "secondaryIdentifier: ".bold() + record.secondaryIdentifier + "\n"
                     + "organism name: ".bold() + record.organism.name + "\n"
